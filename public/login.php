@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Time Tracker Login</title>
+  <title>Study Session Management System Login</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
