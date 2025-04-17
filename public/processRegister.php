@@ -1,6 +1,6 @@
 <?php
 session_start(); // Needed for messages
-require_once 'db_connection.phpconfig\db_connection.php'; // Adjust path as needed
+require_once 'cmsc126-study-session-management-system/config/db_connection.php'; // Adjust path as needed
 
 // --- Basic Input Validation ---
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -60,7 +60,6 @@ try {
     exit;
 }
 
-
 // --- Hash the Password (CRITICAL!) ---
 $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Recommended default hashing
 
@@ -106,5 +105,4 @@ try {
     header("Location: register.php");
     exit;
 }
-
 ?>

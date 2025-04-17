@@ -1,3 +1,16 @@
+<?php
+    session_start(); // Start session to access potential error/success messages
+    if (isset($_SESSION['error'])) {
+      echo '<p style="color:red; text-align: center;">' . htmlspecialchars($_SESSION['error']) . '</p>';
+      unset($_SESSION['error']); // Clear message after displaying
+    }
+    // You might not need success messages on the login page, but you could add it:
+    // if (isset($_SESSION['success'])) {
+    //   echo '<p style="color:green; text-align: center;">' . htmlspecialchars($_SESSION['success']) . '</p>';
+    //   unset($_SESSION['success']);
+    // }
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +21,7 @@
 
 <div class="form-container">
   <h2>Login</h2>
-  <form id="loginForm" action="/login" method="POST" onsubmit="return validateLogin()">
+  <form id="loginForm" action="processLogin.php" method="POST" onsubmit="return validateLogin()">
     <label for="userName">Username</label>
     <input type="text" id="userName" name="userName" required>
 
