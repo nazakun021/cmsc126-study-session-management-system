@@ -48,7 +48,7 @@
 
     <label for="lastName">Last Name:</label>
     <input type="text" id="lastName" name="lastName" required autocomplete="lastName">
-    <div id="lasNameError" class="error"></div>
+    <div id="lastNameError" class="error"></div>
 
     <button type="submit">Continue</button>
   </form>

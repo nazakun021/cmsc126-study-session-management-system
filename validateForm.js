@@ -8,18 +8,25 @@ function validateForm() {
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirm_password');
-    const firstNameInput = document.getElementById('first_name');
-    const lastNameInput = document.getElementById('last_name');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
 
     // --- Get Error Display Elements ---
     const usernameError = document.getElementById('usernameError');
     const emailError = document.getElementById('emailError');
     const passwordError = document.getElementById('passwordError');
     const confirmPasswordError = document.getElementById('confirmPasswordError');
-    // Add error divs for first/last name if you want client-side required check feedback
-    // const firstNameError = document.getElementById('firstNameError');
-    // const lastNameError = document.getElementById('lastNameError');
+    const firstNameError = document.getElementById('firstNameError');
+    const lastNameError = document.getElementById('lastNameError');
+
+    // --- Check if elements exist before accessing value (Defensive Coding) ---
+    if (!usernameInput || !emailInput || !passwordInput || !confirmPasswordInput || !firstNameInput || !lastNameInput ||
+        !usernameError || !emailError || !passwordError || !confirmPasswordError || !firstNameError || !lastNameError) {
+        console.error("Validation script could not find all required form elements or error divs.");
+        // Optionally display a generic form error to the user
+        return false; // Prevent submission if setup is wrong
+    }
 
     // --- Get Values ---
     // (Code to get values as before...)
@@ -42,11 +49,11 @@ function validateForm() {
     }
 
     if (firstName === "") {
-       // firstNameError.textContent = "First Name is required."; // Optional: Display if you add the div
-       isValid = false; // Still mark as invalid even if message isn't shown
+       firstNameError.textContent = "First Name is required."; 
+       isValid = false; 
     }
     if (lastName === "") {
-       // lastNameError.textContent = "Last Name is required."; // Optional: Display if you add the div
+       lastNameError.textContent = "Last Name is required."; 
        isValid = false;
     }
 
@@ -69,7 +76,6 @@ function validateForm() {
         passwordError.textContent = "Password must be at least 6 characters long.";
         isValid = false;
     }
-    // You could add more complex password requirements here (e.g., uppercase, number, symbol)
 
     // Confirm Password Check
     if (confirmPassword === "") {
