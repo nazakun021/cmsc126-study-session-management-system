@@ -1,11 +1,25 @@
 <?php
     session_start();
+    require_once 'db_connection.php'; // Uses the PDO connection setup
+
+    // Initialize courses array and error flag
+    $courses = [];
+    $coursesError = false;
+
+    try {
+      $stmtCourses = $pdo->query("SELECT courseID, courseName FROM Courses ORDER BY courseName ASC");
+      $courses = $stmtCourses->fetchAll();
+      $stmtCourses->closeCursor();
+    } catch (PDOException $e) {
+      error_log("Error fetching courses for registration: " . $e->getMessage());
+      $coursesError = true;
+    }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Study Session Management System Registration</title>
+  <title>Create Account</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -34,23 +48,28 @@
     <input type="email" id="email" name="email" required autocomplete="email">
     <div id="emailError" class="error"></div>
 
+    <label for="course">Course</label>
+    <select id="course" name="courseID" required <?php if ($coursesError || empty($courses)) echo 'disabled'; ?>>
+      <option value="" disabled selected>Select your course</option>
+      <?php if (!$coursesError && !empty($courses)): ?>
+        <?php foreach ($courses as $course): ?>
+          <option value="<?php echo htmlspecialchars($course['courseID']); ?>">
+            <?php echo htmlspecialchars($course['courseName']); ?>
+          </option>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </select>
+    <div id="courseError" class="error"></div>
+
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required autocomplete="password">
     <div id="passwordError" class="error"></div>
 
     <label for="confirmPassword">Confirm Password</label>
     <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="password">
-    <div id="confirmPasswordError" class="error"></div>
+    <div id="confirmPasswordError" class="error"></div> 
 
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" name="firstName" required autocomplete="firstName">
-    <div id="firstNameError" class="error"></div>
-
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" name="lastName" required autocomplete="lastName">
-    <div id="lastNameError" class="error"></div>
-
-    <button type="submit">Continue</button>
+    <button type="submit" <?php if ($coursesError || empty($courses)) echo 'disabled'; ?>>Continue</button>
   </form>
   <div class="footer">
     Already have an account? <a href="login.php" style="color: #0071e3; text-decoration: none;">Sign in</a>

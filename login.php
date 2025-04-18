@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Study Session Management System Login</title>
+  <title>Login</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>

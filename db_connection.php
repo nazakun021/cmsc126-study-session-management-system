@@ -31,7 +31,6 @@ $options = [
       error_log("Database Connection Error: " . $e->getMessage());
  
       // Display a generic error message to the user and stop the script
-      // Avoid echoing $e->getMessage() directly in a production environment
       exit("Database connection failed. Please check server logs or contact support.");
  }
  
