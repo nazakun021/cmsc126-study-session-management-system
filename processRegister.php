@@ -16,7 +16,7 @@ $confirmPassword = $_POST['confirmPassword'] ?? '';
 $courseId = trim($_POST['courseId'] ?? '');
 
 // --- More Validation ---
-if (empty($username) || empty($email) || empty($password) || empty($courseId) {
+if (empty($username) || empty($email) || empty($password) || empty($courseId)) {
     $_SESSION['error'] = "Please fill in all required fields.";
     header("Location: register.php");
     exit;
