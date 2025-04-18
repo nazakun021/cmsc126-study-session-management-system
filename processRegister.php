@@ -55,7 +55,7 @@ try {
         header("Location: register.php");
         exit;  
     }
-    $stmtCheck->closeCursor(); // Close cursor after fetching
+    $stmtCheck->closeCursor(); 
 
 } catch (PDOException $e) {
     error_log("Database Check Error (Register): " . $e->getMessage());
@@ -69,7 +69,7 @@ $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 // --- Insert into Database ---
 try {
-    // 1. Insert into User table
+    // Insert into User table
     $sqlUser = "INSERT INTO User (username, email, password, courseID) VALUES (:username, :email, :password, :courseId)";
     $stmtUser = $pdo->prepare($sqlUser);
     $stmtUser->bindParam(':username', $username);
@@ -78,8 +78,7 @@ try {
     $stmtUser->bindParam(':courseId', $courseId, PDO::PARAM_INT);
 
     $stmtUser->execute();
-
-    $stmtUser->closeCursor(); // Close cursor
+    $stmtUser->closeCursor(); 
 
     $_SESSION['success'] = "Registration successful! Please log in.";
     header("Location: login.php");

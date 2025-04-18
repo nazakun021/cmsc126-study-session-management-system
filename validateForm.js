@@ -22,7 +22,7 @@ function validateForm() {
     if (!usernameInput || !emailInput || !courseSelect || !passwordInput || !confirmPasswordInput ||
         !usernameError || !emailError || !courseError || !passwordError || !confirmPasswordError) {
         console.error("Validation script could not find all required form elements or error divs.");
-        return false; // Prevent submission if setup is wrong
+        return false; 
     }
 
     // --- Get Values ---
@@ -34,11 +34,10 @@ function validateForm() {
 
 
     // --- Validation Checks ---
-    // (All the validation checks as before...)
      if (username === "") {
         usernameError.textContent = "Username is required.";
         isValid = false;
-    } else if (username.length < 4) { // Username Length
+    } else if (username.length < 4) { 
         usernameError.textContent = "Username must be at least 4 characters long.";
         isValid = false;
     }
@@ -54,7 +53,7 @@ function validateForm() {
     }
 
     // Course Selection (value will be "" for the default disabled option)
-    if (courseId === "") { // ADDED CHECK
+    if (courseId === "") { 
         courseError.textContent = "Please select your course.";
         isValid = false;
     }
@@ -63,7 +62,7 @@ function validateForm() {
     if (password === "") {
         passwordError.textContent = "Password is required.";
          isValid = false;
-    } else if (password.length < 6) { // Use the same minimum length as your server-side check
+    } else if (password.length < 6) { 
         passwordError.textContent = "Password must be at least 6 characters long.";
         isValid = false;
     }
@@ -74,10 +73,8 @@ function validateForm() {
          isValid = false;
     } else if (password !== confirmPassword) {
         confirmPasswordError.textContent = "Passwords do not match.";
-        // Also maybe add error styling to both password fields
         isValid = false;
     }
-
 
     // --- Return final validity ---
     return isValid;

@@ -5,9 +5,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once 'db_connection.php'; // Uses the PDO connection setup
+require_once 'db_connection.php';
 
-// Initialize courses array and error flag
 $courses = [];
 $coursesError = false;
 
@@ -35,7 +34,7 @@ try {
   <?php
     if (isset($_SESSION['error'])) {
       echo '<p style="color:red;">' . htmlspecialchars($_SESSION['error']) . '</p>';
-      unset($_SESSION['error']); // Clear message after displaying
+      unset($_SESSION['error']); 
     }
     if (isset($_SESSION['success'])) {
       echo '<p style="color:green;">' . htmlspecialchars($_SESSION['success']) . '</p>';
