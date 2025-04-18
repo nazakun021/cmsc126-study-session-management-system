@@ -7,35 +7,30 @@ function validateForm() {
     // --- Get Form Elements ---
     const usernameInput = document.getElementById('username');
     const emailInput = document.getElementById('email');
+    const courseSelect = document.getElementById('course');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
-    const firstNameInput = document.getElementById('firstName');
-    const lastNameInput = document.getElementById('lastName');
 
     // --- Get Error Display Elements ---
     const usernameError = document.getElementById('usernameError');
     const emailError = document.getElementById('emailError');
+    const courseError = document.getElementById('courseError');
     const passwordError = document.getElementById('passwordError');
     const confirmPasswordError = document.getElementById('confirmPasswordError');
-    const firstNameError = document.getElementById('firstNameError');
-    const lastNameError = document.getElementById('lastNameError');
 
     // --- Check if elements exist before accessing value (Defensive Coding) ---
-    if (!usernameInput || !emailInput || !passwordInput || !confirmPasswordInput || !firstNameInput || !lastNameInput ||
-        !usernameError || !emailError || !passwordError || !confirmPasswordError || !firstNameError || !lastNameError) {
+    if (!usernameInput || !emailInput || !courseSelect || !passwordInput || !confirmPasswordInput ||
+        !usernameError || !emailError || !courseError || !passwordError || !confirmPasswordError) {
         console.error("Validation script could not find all required form elements or error divs.");
-        // Optionally display a generic form error to the user
         return false; // Prevent submission if setup is wrong
     }
 
     // --- Get Values ---
-    // (Code to get values as before...)
     const username = usernameInput.value.trim();
     const email = emailInput.value.trim();
+    const courseId = courseSelect.value;
     const password = passwordInput.value;
     const confirmPassword = confirmPasswordInput.value;
-    const firstName = firstNameInput.value.trim();
-    const lastName = lastNameInput.value.trim();
 
 
     // --- Validation Checks ---
@@ -48,16 +43,6 @@ function validateForm() {
         isValid = false;
     }
 
-    if (firstName === "") {
-       firstNameError.textContent = "First Name is required."; 
-       isValid = false; 
-    }
-    if (lastName === "") {
-       lastNameError.textContent = "Last Name is required."; 
-       isValid = false;
-    }
-
-
     // Email Format (Basic Check)
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple regex
     if (email === "") {
@@ -66,6 +51,12 @@ function validateForm() {
     } else if (!emailPattern.test(email)) {
          emailError.textContent = "Please enter a valid email address.";
          isValid = false;
+    }
+
+    // Course Selection (value will be "" for the default disabled option)
+    if (courseId === "") { // ADDED CHECK
+        courseError.textContent = "Please select your course.";
+        isValid = false;
     }
 
     // Password Length
