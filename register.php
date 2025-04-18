@@ -1,19 +1,24 @@
 <?php
-    session_start();
-    require_once 'db_connection.php'; // Uses the PDO connection setup
+// Add these lines for detailed error reporting during development
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    // Initialize courses array and error flag
-    $courses = [];
-    $coursesError = false;
+session_start();
+require_once 'db_connection.php'; // Uses the PDO connection setup
 
-    try {
-      $stmtCourses = $pdo->query("SELECT courseID, courseName FROM Courses ORDER BY courseName ASC");
-      $courses = $stmtCourses->fetchAll();
-      $stmtCourses->closeCursor();
-    } catch (PDOException $e) {
-      error_log("Error fetching courses for registration: " . $e->getMessage());
-      $coursesError = true;
-    }
+// Initialize courses array and error flag
+$courses = [];
+$coursesError = false;
+
+try {
+  $stmtCourses = $pdo->query("SELECT courseID, courseName FROM Courses ORDER BY courseName ASC");
+  $courses = $stmtCourses->fetchAll();
+  $stmtCourses->closeCursor();
+} catch (PDOException $e) {
+  error_log("Error fetching courses for registration: " . $e->getMessage());
+  $coursesError = true;
+}
 ?>
 
 <!DOCTYPE html>

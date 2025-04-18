@@ -13,7 +13,7 @@ $username = trim($_POST['username'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $password = $_POST['password'] ?? ''; // Don't trim password
 $confirmPassword = $_POST['confirmPassword'] ?? '';
-$courseId = trim($_POST['courseId'] ?? '');
+$courseId = trim($_POST['courseID'] ?? '');
 
 // --- More Validation ---
 if (empty($username) || empty($email) || empty($password) || empty($courseId)) {
