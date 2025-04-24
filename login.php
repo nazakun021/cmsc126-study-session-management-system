@@ -43,5 +43,7 @@ session_start();
     Don't have an account? <a href="register.php" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
 </div>
 
-<script src="validateLogin.js"></script> </body>
+<script src="./scripts/validateLogin.js"></script> 
+
+</body>
 </html>

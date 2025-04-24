@@ -80,7 +80,7 @@ try {
   </div>
 </div>
 
-<script src="validateForm.js"></script>
+<script src="./scripts/validateForm.js"></script>
 
 </body>
 </html>
