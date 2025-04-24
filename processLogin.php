@@ -49,7 +49,7 @@ try {
             $_SESSION['isLoggedIn'] = true; // Flag for access control
 
             // *** REDIRECT ALL USERS TO THE SAME DASHBOARD ***
-            header("Location: dummyDashboard.php");
+            header("Location: dashboard.php");
             exit; 
 
         } else {
