@@ -261,3 +261,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the page
     updateEmptyState();
 });
+
+function logout() {
+    // You can add logic here like clearing session/local storage
+    alert("You have been logged out.");
+    window.location.href = "login.html"; // redirect to login page
+}
