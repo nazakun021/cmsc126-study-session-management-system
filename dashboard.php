@@ -151,34 +151,34 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="add-session-form">
+                <form action="processDashboard.php" id="addSessionForm" method="POST">
                     <div class="form-group">
-                        <label for="session-title">Title</label>
-                        <input type="text" id="session-title" required placeholder="e.g., Midterm Review: Data Structures">
+                        <label for="sessionTitle">Title</label>
+                        <input type="text" id="sessionTitle" required placeholder="e.g., Midterm Review: Data Structures">
                     </div>
                     <div class="form-group">
-                        <label for="session-subject">Subject</label>
-                        <input type="text" id="session-subject" required placeholder="e.g., Computer Science">
+                        <label for="sessionSubject">Subject</label>
+                        <input type="text" id="sessionSubject" required placeholder="e.g., Computer Science">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="session-date">Date</label>
-                            <input type="date" id="session-date" required>
+                            <label for="sessionDate">Date</label>
+                            <input type="date" id="sessionDate" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="session-start-time">Start Time</label>
-                            <input type="time" id="session-start-time" required>
+                            <label for="sessionStartTime">Start Time</label>
+                            <input type="time" id="sessionStartTime" required>
                         </div>
                         <div class="form-group">
-                            <label for="session-end-time">End Time</label>
-                            <input type="time" id="session-end-time" required>
+                            <label for="sessionEndTime">End Time</label>
+                            <input type="time" id="sessionEndTime" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="session-location">Location</label>
-                        <input type="text" id="session-location" required placeholder="e.g., Library Study Room 3">
+                        <label for="sessionLocation">Location</label>
+                        <input type="text" id="sessionLocation" required placeholder="e.g., Library Study Room 3">
                     </div>
                     <div class="form-actions">
                         <button type="button" id="cancel-add" class="btn btn-secondary">Cancel</button>
