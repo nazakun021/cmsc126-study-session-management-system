@@ -62,7 +62,8 @@
                             <i data-feather="chevron-down"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">Profile</a>
+                            <a href="profile.html" class="dropdown-item">Profile</a>
+
                             <a href="#" class="dropdown-item">Logout</a>
                         </div>
                     </div>
@@ -82,15 +83,7 @@
                             <i data-feather="calendar"></i>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-card-content">
-                            <h3 class="stat-card-title">Total Subjects</h3>
-                            <p class="stat-card-value" id="total-subjects">0</p>
-                        </div>
-                        <div class="stat-card-icon green">
-                            <i data-feather="book"></i>
-                        </div>
-                    </div>
+                    
                     <div class="stat-card">
                         <div class="stat-card-content">
                             <h3 class="stat-card-title">Upcoming Sessions</h3>
@@ -100,14 +93,8 @@
                             <i data-feather="clock"></i>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-card-content">
-                            <h3 class="stat-card-title">Avg. Attendance</h3>
-                            <p class="stat-card-value" id="avg-attendance">0%</p>
-                        </div>
-                        <div class="stat-card-icon purple">
-                            <i data-feather="users"></i>
-                        </div>
+                    
+                        
                     </div>
                 </div>
 
