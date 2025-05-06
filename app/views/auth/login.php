@@ -11,7 +11,7 @@ session_start();
 <html>
 <head>
   <title>Login</title>
-  <link rel="stylesheet" href="./css/loginRegister.css">
+  <link rel="stylesheet" href="/css/loginRegister.css">
 </head>
 <body>
 
@@ -29,7 +29,7 @@ session_start();
     }
   ?>
 
-  <form id="loginForm" action="processLogin.php" method="POST" onsubmit="return validateLogin()">
+  <form id="loginForm" action="/processLogin" method="POST" onsubmit="return validateLogin()">
 
     <label for="username">Username</label>
     <input type="text" id="username" name="username" required autocomplete="username">
@@ -40,10 +40,10 @@ session_start();
   </form>
   
   <div class="footer">
-    Don't have an account? <a href="register.php" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
+    Don't have an account? <a href="/register" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
 </div>
 
-<script src="./scripts/validateLogin.js"></script> 
+<script src="/js/validateLogin.js"></script> 
 
 </body>
 </html>

@@ -38,3 +38,4 @@ $options = [
  // Any script that includes this file (e.g., using require_once 'db_connection.php';)
  // will now have access to the $pdo object to interact with the database.
  ?>
+

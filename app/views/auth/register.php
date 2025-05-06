@@ -24,7 +24,7 @@ try {
 <html>
 <head>
   <title>Create Account</title>
-  <link rel="stylesheet" href="./css/loginRegister.css">
+  <link rel="stylesheet" href="../../public/css/loginRegister.css">
 </head>
 <body>
 
@@ -80,7 +80,7 @@ try {
   </div>
 </div>
 
-<script src="./scripts/validateForm.js"></script>
+<script src="../../js/validateForm.js"></script>
 
 </body>
 </html>
