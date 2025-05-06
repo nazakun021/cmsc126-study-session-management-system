@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Login</title>
-  <link rel="stylesheet" href="../public/css/loginRegister.css">
+  <link rel="stylesheet" href="/cmsc126-study-session-management-system/public/css/loginRegister.css">
 </head>
 <body>
 
@@ -31,10 +31,10 @@
   </form>
   
   <div class="footer">
-    Don't have an account? <a href="../app/views/auth/register.php" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
+    Don't have an account? <a href="./register.php" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
 </div>
 
-<script src="../public/js/validateLogin.js"></script> 
+<script src="/cmsc126-study-session-management-system/public/js/validateForm.js"></script> 
 
 </body>
 </html>

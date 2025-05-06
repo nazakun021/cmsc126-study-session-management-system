@@ -34,7 +34,7 @@ class AuthController {
         $courses = $this->courseModel->getAllCourses();
         $coursesError = ($courses === false);
 
-        require_once $rootPath . '../views/auth/register.php'; // Render Register View
+        require_once $rootPath . '/views/auth/register.php'; // Render Register View
     }
 
     public function getAllCourses() {
@@ -55,7 +55,7 @@ class AuthController {
                 $_SESSION['username'] = $username;  
 
                 // REDIRECT ALL USERS TO THE SAME DASHBOARD 
-                header("Location: /dashboard");
+                header("Location: ../app/views/dashboard.php");
                 exit;
             } else {
             // Password incorrect
