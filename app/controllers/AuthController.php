@@ -1,19 +1,26 @@
 <?php
-// Add this BEFORE the require_once
 $userModelPath = __DIR__ . '/../Models/User.php';
 if (!file_exists($userModelPath)) {
     die("ERROR: User.php not found at: $userModelPath");
 }
 require_once $userModelPath;
 
-// require_once __DIR__ . '/../../Models/User.php'; 
-// require_once '../Models/User.php';
+$courseModelPath = __DIR__ . '/../Models/CourseModel.php';
+if (!file_exists($courseModelPath)) {
+    die("ERROR: CourseModel.php not found at: $courseModelPath");
+}
+require_once $courseModelPath;
+
+require_once __DIR__ . '/../config/db_connection.php';
 
 class AuthController {
     protected $userModel;
-
+    protected $courseModel;
+    
     public function __construct() {
         $this->userModel = new User();
+        global $pdo; // Access PDO instance from db_connection.php 
+        $this->courseModel = new CourseModel($pdo);
     }
 
     public function showLogin() {
@@ -23,7 +30,15 @@ class AuthController {
 
     public function showRegister() {
         $rootPath = dirname(__DIR__, 1); // Go up one level from the 'controllers' directory to 'app'
+        // Fetch courses for the registration from CourseModel
+        $courses = $this->courseModel->getAllCourses();
+        $coursesError = ($courses === false);
+
         require_once $rootPath . '../views/auth/register.php'; // Render Register View
+    }
+
+    public function getAllCourses() {
+        return $this->courseModel->getAllCourses();
     }
 
     // Handle Login Form Submission

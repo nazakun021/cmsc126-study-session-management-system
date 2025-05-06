@@ -27,32 +27,4 @@ $action = $_GET['action'] ?? 'login';
 // Dispatch the Request
 $router->dispatch($action);
 
-
-
-
-// ini_set('display_errors', 1);
-// error_reporting(E_ALL);
-// session_start();
-
-// require_once '../app/controllers/AuthController.php';
-// echo "AuthController loaded!";
-
 ?>
-
-<!-- $action = $_GET['action'] ?? 'login'; // Default to Login
-
-$authController = new AuthController(); // Instantiate the AuthController
-
-// Route Requests based on the Action
-switch ($action) {
-    case 'login':
-        $authController->showLogin();
-        break;
-    case 'register':
-        $authController->showRegister();
-        break;
-    default:
-        header("Location: /login");
-        exit;
-} -->
-        

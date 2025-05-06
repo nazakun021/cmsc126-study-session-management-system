@@ -22,10 +22,6 @@ class User {
 
 
 
-
-
-
-
 // class User {
 //     private $pdo;
 
