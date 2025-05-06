@@ -1,17 +1,8 @@
-<?php
-// Add these lines for detailed error reporting during development
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-session_start();
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Login</title>
-  <link rel="stylesheet" href="/css/loginRegister.css">
+  <link rel="stylesheet" href="../public/css/loginRegister.css">
 </head>
 <body>
 
@@ -40,10 +31,10 @@ session_start();
   </form>
   
   <div class="footer">
-    Don't have an account? <a href="/register" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
+    Don't have an account? <a href="../app/views/auth/register.php" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
 </div>
 
-<script src="/js/validateLogin.js"></script> 
+<script src="../public/js/validateLogin.js"></script> 
 
 </body>
 </html>

@@ -1,12 +1,12 @@
 <?php
-// // Add this BEFORE the require_once
-// $userModelPath = __DIR__ . '/../../Models/User.php';
-// if (!file_exists($userModelPath)) {
-//     die("ERROR: User.php not found at: $userModelPath");
-// }
-// require_once $userModelPath;
+// Add this BEFORE the require_once
+$userModelPath = __DIR__ . '/../Models/User.php';
+if (!file_exists($userModelPath)) {
+    die("ERROR: User.php not found at: $userModelPath");
+}
+require_once $userModelPath;
 
-require_once __DIR__ . '/../../Models/User.php'; 
+// require_once __DIR__ . '/../../Models/User.php'; 
 // require_once '../Models/User.php';
 
 class AuthController {
@@ -17,11 +17,13 @@ class AuthController {
     }
 
     public function showLogin() {
-        require_once '../views/auth/login.php'; // Render Login View
+        $rootPath = dirname(__DIR__, 1); // Go up one level from the 'controllers' directory to 'app'
+        require_once $rootPath . '../views/auth/login.php'; // Render Login View
     }
 
     public function showRegister() {
-        require_once '../views/auth/register.php'; // Render Register View
+        $rootPath = dirname(__DIR__, 1); // Go up one level from the 'controllers' directory to 'app'
+        require_once $rootPath . '../views/auth/register.php'; // Render Register View
     }
 
     // Handle Login Form Submission

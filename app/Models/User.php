@@ -3,8 +3,7 @@ class User {
     private $pdo;
 
     public function __construct() {
-        require_once __DIR__ . '/../../config/db_connection.php';
-        $this->pdo = $pdo;
+        $this->pdo = require_once __DIR__ . '/../config/db_connection.php';
     }
 
     public function login($username, $password) {

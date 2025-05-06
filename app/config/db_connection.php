@@ -34,8 +34,9 @@ $options = [
       exit("Database connection failed. Please check server logs or contact support.");
  }
  
+ return $pdo; // Return the PDO object
+
  // If the script reaches this point without exiting, the connection was successful.
  // Any script that includes this file (e.g., using require_once 'db_connection.php';)
  // will now have access to the $pdo object to interact with the database.
  ?>
-

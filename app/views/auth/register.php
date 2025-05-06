@@ -1,30 +1,30 @@
 <?php
-// Add these lines for detailed error reporting during development
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// // Add these lines for detailed error reporting during development
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
-session_start();
-require_once 'db_connection.php';
+// session_start();
+// require_once 'db_connection.php';
 
-$courses = [];
-$coursesError = false;
+// $courses = [];
+// $coursesError = false;
 
-try {
-  $stmtCourses = $pdo->query("SELECT courseID, courseName FROM Courses ORDER BY courseName ASC");
-  $courses = $stmtCourses->fetchAll();
-  $stmtCourses->closeCursor();
-} catch (PDOException $e) {
-  error_log("Error fetching courses for registration: " . $e->getMessage());
-  $coursesError = true;
-}
+// try {
+//   $stmtCourses = $pdo->query("SELECT courseID, courseName FROM Courses ORDER BY courseName ASC");
+//   $courses = $stmtCourses->fetchAll();
+//   $stmtCourses->closeCursor();
+// } catch (PDOException $e) {
+//   error_log("Error fetching courses for registration: " . $e->getMessage());
+//   $coursesError = true;
+// }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
   <title>Create Account</title>
-  <link rel="stylesheet" href="../../public/css/loginRegister.css">
+  <link rel="stylesheet" href="../public/css/loginRegister.css">
 </head>
 <body>
 
@@ -76,11 +76,11 @@ try {
     <button type="submit" <?php if ($coursesError || empty($courses)) echo 'disabled'; ?>>Continue</button>
   </form>
   <div class="footer">
-    Already have an account? <a href="login.php" style="color: #0071e3; text-decoration: none;">Sign in</a>
+    Already have an account? <a href="../app/views/auth/login.php" style="color: #0071e3; text-decoration: none;">Sign in</a>
   </div>
 </div>
 
-<script src="../../js/validateForm.js"></script>
+<script src="../public/js/validateForm.js"></script>
 
 </body>
 </html>
