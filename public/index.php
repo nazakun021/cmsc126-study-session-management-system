@@ -17,14 +17,18 @@ $router->addRoute('register', 'AuthController@showRegister');
 $router->addRoute('dashboard', 'AuthController@showDashboard');
 $router->addRoute('logout', 'AuthController@logout');
 
-// Handle form Submissions
-$router->addRoute('processLogin', 'AuthController@login');
-$router->addRoute('processRegister', 'AuthController@register');
-
-// Get the action from the URL (e.g., /login -> action=login)
-$action = $_GET['action'] ?? 'login';
-
-// Dispatch the Request
-$router->dispatch($action);
+// Handle form Submissions (POST requests)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action']) && $_POST['action'] === 'processLogin') {
+        $router->dispatch('processLogin');
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'processRegister') {
+        $router->dispatch('processRegister');
+    }
+} else {
+    // Handle GET requests for displaying froms or other actions
+    $action = $_GET['action'] ?? 'login';
+    // Dispatch the Request
+    $router->dispatch($action);
+}
 
 ?>

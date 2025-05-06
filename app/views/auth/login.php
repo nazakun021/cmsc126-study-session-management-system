@@ -15,19 +15,21 @@
       unset($_SESSION['error']);
     }
     if (isset($_SESSION['success'])) {
-     echo '<p class="success-message" style="color:green; text-align: center; margin-bottom: 15px;">' . htmlspecialchars($_SESSION['success']) . '</p>';
-     unset($_SESSION['success']);
-    }
+      echo '<p class="success-message" style="color:green; text-align: center; margin-bottom: 15px;">' . htmlspecialchars($_SESSION['success']) . '</p>';
+      unset($_SESSION['success']);
+    }  
   ?>
 
-  <form id="loginForm" action="/processLogin" method="POST" onsubmit="return validateLogin()">
-
+  <form id="loginForm" action="index.php" method="POST" onsubmit="return validateLogin()">
+    <input type="hidden" name="action" value="processLogin">
     <label for="username">Username</label>
     <input type="text" id="username" name="username" required autocomplete="username">
     <div id="usernameError" class="error"></div>
     
     <label for="password">Password</label>
-    <input type="password" id="password" name="password" required autocomplete="current-password"> <div id="passwordError" class="error"></div> <button type="submit">Login</button>
+    <input type="password" id="password" name="password" required autocomplete="current-password">
+    <div id="passwordError" class="error"></div>
+    <button type="submit">Login</button>
   </form>
   
   <div class="footer">
