@@ -9,6 +9,8 @@ session_start(); // Initializes Session Management
 require_once '../app/config/db_connection.php';
 require_once '../app/core/Router.php';
 require_once '../app/controllers/AuthController.php';
+require_once '../app/Models/User.php';
+require_once '../app/Models/CourseModel.php';
 
 // Define Routes
 $router = new Router();

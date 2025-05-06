@@ -11,16 +11,17 @@
 
   <?php
     if (isset($_SESSION['error'])) {
-      echo '<p style="color:red;">' . htmlspecialchars($_SESSION['error']) . '</p>';
+      echo '<p class="error-message" style="color:red; text-align: center; margin-bottom: 15px;">' . htmlspecialchars($_SESSION['error']) . '</p>';
       unset($_SESSION['error']); 
     }
     if (isset($_SESSION['success'])) {
-      echo '<p style="color:green;">' . htmlspecialchars($_SESSION['success']) . '</p>';
+      echo '<p class="success-message" style="color:green; text-align: center; margin-bottom: 15px;">' . htmlspecialchars($_SESSION['success']) . '</p>';
       unset($_SESSION['success']);
     }
   ?>
 
-  <form action="processRegister.php" id="registerForm" method="POST" onsubmit="return validateForm()">
+  <form id="registerForm" action="/register" method="POST" onsubmit="return validateForm()">
+    <input type="hidden" name="action" value="processRegister">
     
     <label for="username">Username</label>
     <input type="text" id="username" name="username" required autocomplete="username">
@@ -31,7 +32,8 @@
     <div id="emailError" class="error"></div>
 
     <label for="course">Course</label>
-    <select id="course" name="courseID" required <?php if ($coursesError || empty($courses)) echo 'disabled'; ?>>
+    <select id="course" name="courseID" required 
+    <?php if ($coursesError || empty($courses)) echo 'disabled'; ?>>
       <option value="" disabled selected>Select your course</option>
       <?php if (!$coursesError && !empty($courses)): ?>
         <?php foreach ($courses as $course): ?>

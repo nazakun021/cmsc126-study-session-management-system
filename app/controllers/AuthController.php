@@ -95,7 +95,7 @@ class AuthController {
                     $_SESSION['isLoggedIn'] = true; // Flag for access control
 
                     // REDIRECT ALL USERS TO DASHBOARD
-                    header("Location: dashboard.php");
+                    header("Location: /dashboard");
                     exit;
                 } else {
                     $_SESSION['error'] = "Invalid username or password.";
@@ -136,8 +136,14 @@ class AuthController {
                 exit;
             } else {
                 $error = "Registration failed!";
+                $courses = $this->courseModel->getAllCourses();
+                $coursesError = ($courses === false);
                 require_once '../views/auth/register.php';
+                exit;
             }
+        } else {
+            header("Location: /register");
+            exit;
         }
     }
 
