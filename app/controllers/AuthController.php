@@ -18,8 +18,9 @@ class AuthController {
     protected $courseModel;
     
     public function __construct() {
-        $this->userModel = new User();
         global $pdo; // Access PDO instance from db_connection.php 
+        $this->$pdo = $pdo;
+        $this->userModel = new User();
         $this->courseModel = new CourseModel($pdo);
     }
 
@@ -43,24 +44,79 @@ class AuthController {
 
     // Handle Login Form Submission
     public function login() {
+        session_start(); // Ensure session is started
+        require_once __DIR__ . '/../config/db_connection.php';
+
         // Basic Input Validation
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = trim($_POST['username']);
-            $password = $_POST['password'];
+        if ($_SERVER["REQUEST_METHOD"] != "POST") {
+            header("Location: login.php");
+            exit;
+        }
 
-            $user = $this->userModel->login($username, $password);
+        // Collect and Sanitize Inputs
+        $username = trim($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
 
+        // More Validation
+
+        if (empty($username) || empty($password)) {
+            $_SESSION['error'] = "Please fill in both username and password.";
+            header("Location: login.php");
+            exit;
+        }
+
+        // Check Credentials Against Database
+        $stmt = null;
+        try {
+            $sql = "SELECT userID, password FROM User WHERE username = :username";
+            $stmt = $pdo->prepare($sql);
+
+            // Bind parameters
+            $stmt->bindParam(':username', $username);
+
+            // Execute the Query
+            $stmt->execute();
+
+            // Fetch the user data (if found)
+            $user = $stmt->fetch();
+
+            // Verify User and Password
             if ($user) {
-                $_SESSION['userId'] = $user['userID'];      
-                $_SESSION['username'] = $username;  
+                // User found, now verify the password
+                if (password_verify($password, $user['password'])) {
+                    // Password Correct, Login Sucessful.
 
-                // REDIRECT ALL USERS TO THE SAME DASHBOARD 
-                header("Location: ../app/views/dashboard.php");
-                exit;
+                    // Regenerate Session ID for Security
+                    session_regenerate_id(true);
+
+                    // Store user information in the Session
+                    $_SESSION['userId'] = $user['userID'];
+                    $_SESSION['username'] = $username;
+                    $_SESSION['isLoggedIn'] = true; // Flag for access control
+
+                    // REDIRECT ALL USERS TO DASHBOARD
+                    header("Location: dashboard.php");
+                    exit;
+                } else {
+                    $_SESSION['error'] = "Invalid username or password.";
+                    header("Location: login.php");
+                    exit;
+                }
             } else {
-            // Password incorrect
-            $error = "Invalid credentials!";
-                header("Location: /login");
+                $_SESSION['error'] = "Invalid username or password.";
+                header("Location: login.php");
+                exit;
+            }
+        } catch (PDOException $e) {
+            // Handle potential database errors during login
+            error_log("Login PDOException: " . $e->getMessage());
+            $_SESSION['error'] = "Login failed due to a system error. Please try again leter.";
+            header("Location: login.php");
+            exit;
+        } finally {
+            // Close cursor if statement was prepared
+            if ($stmt) {
+                $stmt->closeCursor();
             }
         }
     }
