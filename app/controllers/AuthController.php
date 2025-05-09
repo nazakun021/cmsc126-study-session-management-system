@@ -16,10 +16,11 @@ require_once __DIR__ . '/../config/db_connection.php';
 class AuthController {
     protected $userModel;
     protected $courseModel;
+    protected $pdo;
     
     public function __construct() {
         global $pdo; // Access PDO instance from db_connection.php 
-        $this->$pdo = $pdo;
+        $this->pdo = $pdo;
         $this->userModel = new User();
         $this->courseModel = new CourseModel($pdo);
     }
