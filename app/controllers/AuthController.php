@@ -77,6 +77,7 @@ class AuthController {
 
     // Handle Registration Form Submission
     public function register() {
+        session_start(); // Ensure session is started
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = trim($_POST['username']);
             $email = trim($_POST['email']);
@@ -86,14 +87,15 @@ class AuthController {
 
             $result = $this->userModel->register($username, $email, $password, $confirmPassword, $courseId);
             if ($result['success']) {
-                $_SESSION['success'] = "Registration successful! Please log in.";
+                $_SESSION['success'] = "Account created successfully! Please log in.";
                 header("Location: /cmsc126-study-session-management-system/public/login");
                 exit;
             } else {
                 $_SESSION['error'] = $result['error'];
                 $courses = $this->courseModel->getAllCourses();
                 $coursesError = ($courses === false);
-                require_once dirname(__DIR__) . '/views/auth/register.php';
+                $rootPath = dirname(__DIR__, 1);
+                require_once $rootPath . '/views/auth/register.php';
                 exit;
             }
         } else {
@@ -104,11 +106,13 @@ class AuthController {
 
     // Show Dashboard (Protected Route)
     public function showDashboard() {
+        session_start(); // Ensure session is started
         if (!isset($_SESSION['userId'])) {
-            header("Location: /login");
+            header("Location: /cmsc126-study-session-management-system/public/login");
             exit;
         }
-        require_once '../views/dashboard.php';
+        $rootPath = dirname(__DIR__, 1); // Go up one level from the 'controllers' directory to 'app'
+        require_once $rootPath . '/views/dashboard.php';
     }
 
     // Logout User

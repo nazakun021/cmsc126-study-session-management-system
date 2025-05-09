@@ -36,7 +36,7 @@
     Don't have an account? <a href="/cmsc126-study-session-management-system/public/register" style="color: #0071e3; text-decoration: none;">Create one</a> </div>
 </div>
 
-<script src="/cmsc126-study-session-management-system/public/js/validateForm.js"></script> 
+<script src="/cmsc126-study-session-management-system/public/js/validateLogin.js"></script> 
 
 </body>
 </html>

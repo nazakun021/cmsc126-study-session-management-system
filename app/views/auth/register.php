@@ -60,7 +60,7 @@
   </div>
 </div>
 
-<script src="/cmsc126-study-session-management-system/public/js/validateForm.js"></script>
+<script src="/cmsc126-study-session-management-system/public/js/validateRegister.js"></script>
 
 </body>
 </html>
