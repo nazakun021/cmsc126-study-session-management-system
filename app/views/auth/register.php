@@ -56,7 +56,7 @@
     <button type="submit" <?php if (isset($coursesError) && ($coursesError || empty($courses))): ?>disabled<?php endif; ?>>Continue</button>
   </form>
   <div class="footer">
-    Already have an account? <a href="./login.php" style="color: #0071e3; text-decoration: none;">Sign in</a>
+    Already have an account? <a href="/cmsc126-study-session-management-system/public/login" style="color: #0071e3; text-decoration: none;">Sign in</a>
   </div>
 </div>
 

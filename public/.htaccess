@@ -1,5 +1,6 @@
 RewriteEngine On
-RewriteBase /cmsc126-study-session-management-system/public/
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+RewriteRule ^ index.php [QSA,L]

@@ -18,18 +18,23 @@ $router->addRoute('login', 'AuthController@showLogin');
 $router->addRoute('register', 'AuthController@showRegister');
 $router->addRoute('dashboard', 'AuthController@showDashboard');
 $router->addRoute('logout', 'AuthController@logout');
+$router->addRoute('processLogin', 'AuthController@login');
+$router->addRoute('processRegister', 'AuthController@register');
+
+// Get the path after /public/
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$base = dirname($_SERVER['SCRIPT_NAME']); // usually /cmsc126-study-session-management-system/public
+$action = trim(str_replace($base, '', $path), '/');
+if ($action === '') $action = 'login';
 
 // Handle form Submissions (POST requests)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action']) && $_POST['action'] === 'processLogin') {
-        $router->dispatch('processLogin');
-    } elseif (isset($_POST['action']) && $_POST['action'] === 'processRegister') {
-        $router->dispatch('processRegister');
+    if (isset($_POST['action'])) {
+        $router->dispatch($_POST['action']);
     }
 } else {
-    // Handle GET requests for displaying froms or other actions
-    $action = $_GET['action'] ?? 'login';
-    // Dispatch the Request
+    // Handle GET requests for displaying forms or other actions
+    // Dispatch the Request    
     $router->dispatch($action);
 }
 
