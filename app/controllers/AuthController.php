@@ -106,7 +106,9 @@ class AuthController {
 
     // Show Dashboard (Protected Route)
     public function showDashboard() {
-        session_start(); // Ensure session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['userId'])) {
             header("Location: /cmsc126-study-session-management-system/public/login");
             exit;
