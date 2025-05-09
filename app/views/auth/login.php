@@ -20,7 +20,7 @@
     }  
   ?>
 
-  <form id="loginForm" action="/login" method="POST" onsubmit="return validateLogin()">
+  <form id="loginForm" action="/cmsc126-study-session-management-system/public/login" method="POST" onsubmit="return validateLogin()">
     <input type="hidden" name="action" value="processLogin">
     <label for="username">Username</label>
     <input type="text" id="username" name="username" required autocomplete="username">

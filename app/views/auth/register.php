@@ -20,7 +20,7 @@
     }
   ?>
 
-  <form id="registerForm" action="/register" method="POST" onsubmit="return validateForm()">
+  <form id="registerForm" action="/cmsc126-study-session-management-system/public/register" method="POST" onsubmit="return validateForm()">
     <input type="hidden" name="action" value="processRegister">
     
     <label for="username">Username</label>

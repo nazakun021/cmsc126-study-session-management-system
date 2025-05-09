@@ -21,7 +21,7 @@ class AuthController {
     public function __construct() {
         global $pdo; // Access PDO instance from db_connection.php 
         $this->pdo = $pdo;
-        $this->userModel = new User();
+        $this->userModel = new User($pdo);
         $this->courseModel = new CourseModel($pdo);
     }
 
@@ -46,104 +46,58 @@ class AuthController {
     // Handle Login Form Submission
     public function login() {
         session_start(); // Ensure session is started
-        require_once __DIR__ . '/../config/db_connection.php';
-
-        // Basic Input Validation
-        if ($_SERVER["REQUEST_METHOD"] != "POST") {
-            header("Location: login.php");
-            exit;
-        }
-
         // Collect and Sanitize Inputs
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        // More Validation
-
         if (empty($username) || empty($password)) {
             $_SESSION['error'] = "Please fill in both username and password.";
-            header("Location: login.php");
+            header("Location: /cmsc126-study-session-management-system/public/login");
             exit;
         }
 
-        // Check Credentials Against Database
-        $stmt = null;
-        try {
-            $sql = "SELECT userID, password FROM User WHERE username = :username";
-            $stmt = $pdo->prepare($sql);
-
-            // Bind parameters
-            $stmt->bindParam(':username', $username);
-
-            // Execute the Query
-            $stmt->execute();
-
-            // Fetch the user data (if found)
-            $user = $stmt->fetch();
-
-            // Verify User and Password
-            if ($user) {
-                // User found, now verify the password
-                if (password_verify($password, $user['password'])) {
-                    // Password Correct, Login Sucessful.
-
-                    // Regenerate Session ID for Security
-                    session_regenerate_id(true);
-
-                    // Store user information in the Session
-                    $_SESSION['userId'] = $user['userID'];
-                    $_SESSION['username'] = $username;
-                    $_SESSION['isLoggedIn'] = true; // Flag for access control
-
-                    // REDIRECT ALL USERS TO DASHBOARD
-                    header("Location: /dashboard");
-                    exit;
-                } else {
-                    $_SESSION['error'] = "Invalid username or password.";
-                    header("Location: login.php");
-                    exit;
-                }
-            } else {
-                $_SESSION['error'] = "Invalid username or password.";
-                header("Location: login.php");
-                exit;
-            }
-        } catch (PDOException $e) {
-            // Handle potential database errors during login
-            error_log("Login PDOException: " . $e->getMessage());
-            $_SESSION['error'] = "Login failed due to a system error. Please try again leter.";
-            header("Location: login.php");
+        // Use User model's login method
+        $result = $this->userModel->login($username, $password);
+        if ($result['success']) {
+            // Login successful
+            $user = $result['user'];
+            session_regenerate_id(true);
+            $_SESSION['userId'] = $user['userID'];
+            $_SESSION['username'] = $user['userName'];
+            $_SESSION['isLoggedIn'] = true;
+            header("Location: /cmsc126-study-session-management-system/public/dashboard");
             exit;
-        } finally {
-            // Close cursor if statement was prepared
-            if ($stmt) {
-                $stmt->closeCursor();
-            }
+        } else {
+            // Login failed
+            $_SESSION['error'] = $result['error'];
+            header("Location: /cmsc126-study-session-management-system/public/login");
+            exit;
         }
     }
 
     // Handle Registration Form Submission
     public function register() {
-        // Basic Input Validation
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = trim($_POST['username']);
             $email = trim($_POST['email']);
             $password = $_POST['password']; 
             $confirmPassword = $_POST['confirmPassword'];
             $courseId = trim($_POST['courseID']);
-            
-            if ($this->userModel->register($username, $email, $password, $confirmPassword, $courseId)) {
-                header("Location: /login?success=1");
+
+            $result = $this->userModel->register($username, $email, $password, $confirmPassword, $courseId);
+            if ($result['success']) {
+                $_SESSION['success'] = "Registration successful! Please log in.";
+                header("Location: /cmsc126-study-session-management-system/public/login");
                 exit;
             } else {
-                $error = "Registration failed!";
+                $_SESSION['error'] = $result['error'];
                 $courses = $this->courseModel->getAllCourses();
                 $coursesError = ($courses === false);
-                require_once '../views/auth/register.php';
+                require_once dirname(__DIR__) . '/views/auth/register.php';
                 exit;
             }
         } else {
-            header("Location: /register");
+            header("Location: /cmsc126-study-session-management-system/public/register");
             exit;
         }
     }
