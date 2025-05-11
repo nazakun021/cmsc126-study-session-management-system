@@ -1,8 +1,13 @@
+<?php
+require_once __DIR__ . '/../config/init.php';
+requireLogin();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo $csrfToken; ?>">
     <title>Dashboard</title>
     <link rel="stylesheet" href="/cmsc126-study-session-management-system/public/css/styles.css">
     <script src="https://unpkg.com/feather-icons"></script>
@@ -20,25 +25,25 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li class="active">
-                        <a href="index.html">
+                        <a href="/cmsc126-study-session-management-system/app/views/dashboard.php">
                             <i data-feather="home"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a href="review-sessions.html">
+                        <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php">
                             <i data-feather="calendar"></i>
                             <span>Review Sessions</span>
                         </a>
                     </li>
                     <li>
-                        <a href="subjects.html">
+                        <a href="/cmsc126-study-session-management-system/app/views/subjects.php">
                             <i data-feather="book"></i>
                             <span>Subjects</span>
                         </a>
                     </li>
                     <li>
-                        <a href="attendance.html">
+                        <a href="/cmsc126-study-session-management-system/app/views/attendance.php">
                             <i data-feather="users"></i>
                             <span>Attendance</span>
                         </a>
@@ -58,13 +63,12 @@
                     <div class="dropdown">
                         <button class="dropdown-toggle">
                             <div class="user-avatar">UP</div>
-                            <span class="user-name">BLANK</span>
+                            <span class="user-name"><?php echo htmlspecialchars($_SESSION['username'] ?? 'Guest'); ?></span>
                             <i data-feather="chevron-down"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a href="profile.html" class="dropdown-item">Profile</a>
-
-                            <a href="#" class="dropdown-item">Logout</a>
+                            <a href="/cmsc126-study-session-management-system/app/views/profile.php" class="dropdown-item">Profile</a>
+                            <a href="/cmsc126-study-session-management-system/app/views/logout.php" class="dropdown-item">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -138,34 +142,53 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="processDashboard.php" id="addSessionForm" method="POST">
+                <form action="/cmsc126-study-session-management-system/public/create-session" id="addSessionForm" method="POST">
+                    <input type="hidden" name="action" value="create-session">
                     <div class="form-group">
                         <label for="sessionTitle">Title</label>
-                        <input type="text" id="sessionTitle" required placeholder="e.g., Midterm Review: Data Structures">
+                        <input type="text" id="sessionTitle" name="reviewTitle" required placeholder="e.g., Midterm Review: Data Structures">
                     </div>
                     <div class="form-group">
                         <label for="sessionSubject">Subject</label>
-                        <input type="text" id="sessionSubject" required placeholder="e.g., Computer Science">
+                        <select id="sessionSubject" name="subjectID" required>
+                            <option value="">Select a subject</option>
+                            <?php
+                            // Fetch subjects from database
+                            $stmt = $pdo->query("SELECT subjectID, subjectName FROM subjects ORDER BY subjectName");
+                            while ($subject = $stmt->fetch()) {
+                                echo "<option value='" . htmlspecialchars($subject['subjectID']) . "'>" . 
+                                     htmlspecialchars($subject['subjectName']) . "</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionTopic">Topic</label>
+                        <input type="text" id="sessionTopic" name="reviewTopic" required placeholder="e.g., Binary Trees and Graphs">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="sessionDate">Date</label>
-                            <input type="date" id="sessionDate" required>
+                            <input type="date" id="sessionDate" name="reviewDate" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="sessionStartTime">Start Time</label>
-                            <input type="time" id="sessionStartTime" required>
+                            <input type="time" id="sessionStartTime" name="reviewStartTime" required>
                         </div>
                         <div class="form-group">
                             <label for="sessionEndTime">End Time</label>
-                            <input type="time" id="sessionEndTime" required>
+                            <input type="time" id="sessionEndTime" name="reviewEndTime" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="sessionLocation">Location</label>
-                        <input type="text" id="sessionLocation" required placeholder="e.g., Library Study Room 3">
+                        <input type="text" id="sessionLocation" name="reviewLocation" required placeholder="e.g., Library Study Room 3">
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionDescription">Description</label>
+                        <textarea id="sessionDescription" name="reviewDescription" rows="3" placeholder="Describe what will be covered in this session"></textarea>
                     </div>
                     <div class="form-actions">
                         <button type="button" id="cancel-add" class="btn btn-secondary">Cancel</button>
@@ -237,6 +260,14 @@
         </div>
     </template>
 
-    <script src="script.js"></script>
+    <!-- Scripts -->
+    <script src="/cmsc126-study-session-management-system/public/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+    <script src="/cmsc126-study-session-management-system/public/js/utils.js"></script>
+    <script src="/cmsc126-study-session-management-system/public/js/dashboard.js"></script>
 </body>
 </html>

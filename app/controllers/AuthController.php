@@ -39,13 +39,11 @@ class AuthController {
         require_once $rootPath . '/views/auth/register.php'; // Render Register View
     }
 
-    public function getAllCourses() {
-        return $this->courseModel->getAllCourses();
-    }
-
     // Handle Login Form Submission
     public function login() {
-        session_start(); // Ensure session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         // Collect and Sanitize Inputs
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -65,6 +63,7 @@ class AuthController {
             $_SESSION['userId'] = $user['userID'];
             $_SESSION['username'] = $user['userName'];
             $_SESSION['isLoggedIn'] = true;
+            $_SESSION['user'] = $user; // Store the entire user object
             header("Location: /cmsc126-study-session-management-system/public/dashboard");
             exit;
         } else {
@@ -109,7 +108,7 @@ class AuthController {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        if (!isset($_SESSION['userId'])) {
+        if (!isset($_SESSION['userId']) || !isset($_SESSION['username'])) {
             header("Location: /cmsc126-study-session-management-system/public/login");
             exit;
         }
@@ -119,9 +118,13 @@ class AuthController {
 
     // Logout User
     public function logout() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         session_unset();
         session_destroy();
-        header("Location: /login");
+        header("Location: /cmsc126-study-session-management-system/public/login");
+        exit;
     }
 }
 ?>

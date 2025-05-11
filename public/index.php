@@ -9,8 +9,10 @@ session_start(); // Initializes Session Management
 require_once '../app/config/db_connection.php';
 require_once '../app/core/Router.php';
 require_once '../app/controllers/AuthController.php';
+require_once '../app/controllers/StudySessionController.php';
 require_once '../app/Models/User.php';
 require_once '../app/Models/CourseModel.php';
+require_once '../app/Models/StudySession.php';
 
 // Define Routes
 $router = new Router();
@@ -20,6 +22,11 @@ $router->addRoute('dashboard', 'AuthController@showDashboard');
 $router->addRoute('logout', 'AuthController@logout');
 $router->addRoute('processLogin', 'AuthController@login');
 $router->addRoute('processRegister', 'AuthController@register');
+
+// Study Session Routes
+$router->addRoute('create-session', 'StudySessionController@createSession');
+$router->addRoute('update-session', 'StudySessionController@updateSession');
+$router->addRoute('delete-session', 'StudySessionController@deleteSession');
 
 // Get the path after /public/
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -1,10 +1,14 @@
+<?php
+require_once __DIR__ . '/../config/init.php';
+requireLogin();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subjects | Review Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/cmsc126-study-session-management-system/public/css/styles.css">
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
@@ -20,25 +24,25 @@
             <nav class="sidebar-nav">
                 <ul>
                     <li>
-                        <a href="dashboard.php">
+                        <a href="/cmsc126-study-session-management-system/app/views/dashboard.php">
                             <i data-feather="home"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a href="review-sessions.html">
+                        <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php">
                             <i data-feather="calendar"></i>
                             <span>Review Sessions</span>
                         </a>
                     </li>
                     <li class="active">
-                        <a href="subjects.html">
+                        <a href="/cmsc126-study-session-management-system/app/views/subjects.php">
                             <i data-feather="book"></i>
                             <span>Subjects</span>
                         </a>
                     </li>
                     <li>
-                        <a href="attendance.html">
+                        <a href="/cmsc126-study-session-management-system/app/views/attendance.php">
                             <i data-feather="users"></i>
                             <span>Attendance</span>
                         </a>
@@ -49,25 +53,10 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
-            <header class="header">
-                <div class="header-left">
-                    <h2>Subjects</h2>
-                </div>
-                <div class="header-right">
-                    <div class="dropdown">
-                        <button class="dropdown-toggle">
-                            <div class="user-avatar">JS</div>
-                            <span class="user-name">John Smith</span>
-                            <i data-feather="chevron-down"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="#" class="dropdown-item">Profile</a>
-                            <a href="#" class="dropdown-item">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <?php 
+            $pageTitle = 'Subjects';
+            require_once __DIR__ . '/includes/header.php'; 
+            ?>
 
             <!-- Content -->
             <div class="content-container">
@@ -189,6 +178,6 @@
         </div>
     </template>
 
-    <script src="subjects.js"></script>
+    <script src="/cmsc126-study-session-management-system/public/js/script.js"></script>
 </body>
 </html>
