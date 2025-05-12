@@ -2,13 +2,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Feather icons
     feather.replace();
     
+    // Dropdown functionality
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    
+    if (dropdownToggle && dropdownMenu) {
+        dropdownToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+    
     // DOM elements
     const addSessionBtn = document.getElementById('add-session-btn');
     const emptyAddBtn = document.getElementById('empty-add-btn');
     const addSessionModal = document.getElementById('add-session-modal');
     const closeModalBtn = document.getElementById('close-modal');
     const cancelAddBtn = document.getElementById('cancel-add');
-    const addSessionForm = document.getElementById('add-session-form');
+    const addSessionForm = document.getElementById('addSessionForm');
     const sessionsContainer = document.getElementById('sessions-container');
     const emptyState = document.getElementById('empty-state');
     const deleteModal = document.getElementById('delete-modal');
@@ -28,12 +46,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show/hide empty state based on sessions
     function updateEmptyState() {
+        const sessions = document.querySelectorAll('.session-card');
         if (sessions.length === 0) {
             emptyState.style.display = 'flex';
             sessionsContainer.style.display = 'none';
         } else {
             emptyState.style.display = 'none';
-            sessionsContainer.style.display = 'grid';
+            sessionsContainer.style.display = 'block';
         }
         
         // Update stats
@@ -150,39 +169,51 @@ document.addEventListener('DOMContentLoaded', function() {
         addSessionForm.reset();
     });
     
-    // Submit add session form
+    // Submit add session form with validation
     addSessionForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
+        // Client-side validation
+        let valid = true;
+        let errorMessages = [];
+
         // Get form values
-        const title = document.getElementById('session-title').value;
-        const subject = document.getElementById('session-subject').value;
-        const date = document.getElementById('session-date').value;
-        const startTime = document.getElementById('session-start-time').value;
-        const endTime = document.getElementById('session-end-time').value;
-        const location = document.getElementById('session-location').value;
-        
-        // Create new session object
-        const newSession = {
-            id: generateId(),
-            title,
-            subject,
-            date,
-            startTime: formatTime(startTime),
-            endTime: formatTime(endTime),
-            location,
-            status: 'scheduled'
-        };
-        
-        // Add to sessions array
-        sessions.push(newSession);
-        
-        // Render sessions
-        renderSessions();
-        
-        // Close modal and reset form
-        addSessionModal.style.display = 'none';
-        addSessionForm.reset();
+        const title = document.getElementById('sessionTitle').value.trim();
+        const subject = document.getElementById('sessionSubject').value;
+        const topic = document.getElementById('sessionTopic').value.trim();
+        const date = document.getElementById('sessionDate').value;
+        const startTime = document.getElementById('sessionStartTime').value;
+        const endTime = document.getElementById('sessionEndTime').value;
+        const location = document.getElementById('sessionLocation').value.trim();
+        const description = document.getElementById('sessionDescription').value.trim();
+
+        // Simple validation rules
+        if (!title) { valid = false; errorMessages.push('Title is required.'); }
+        if (!subject) { valid = false; errorMessages.push('Subject is required.'); }
+        if (!topic) { valid = false; errorMessages.push('Topic is required.'); }
+        if (!date) { valid = false; errorMessages.push('Date is required.'); }
+        if (!startTime) { valid = false; errorMessages.push('Start time is required.'); }
+        if (!endTime) { valid = false; errorMessages.push('End time is required.'); }
+        if (!location) { valid = false; errorMessages.push('Location is required.'); }
+        // Optionally: check if endTime > startTime
+        if (startTime && endTime && startTime >= endTime) {
+            valid = false;
+            errorMessages.push('End time must be after start time.');
+        }
+
+        // Remove any previous error message
+        let errorDiv = document.getElementById('sessionFormError');
+        if (errorDiv) errorDiv.remove();
+
+        if (!valid) {
+            e.preventDefault();
+            // Show error messages above the form
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'sessionFormError';
+            errorDiv.style.color = 'red';
+            errorDiv.style.marginBottom = '10px';
+            errorDiv.innerHTML = errorMessages.join('<br>');
+            addSessionForm.prepend(errorDiv);
+        }
+        // If valid, allow form to submit to server
     });
     
     // Close delete modal
@@ -200,15 +231,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Confirm delete
     confirmDeleteBtn.addEventListener('click', () => {
         if (sessionToDelete) {
-            // Remove from array
-            sessions = sessions.filter(session => session.id !== sessionToDelete);
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/cmsc126-study-session-management-system/public/delete-session';
             
-            // Render sessions
-            renderSessions();
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'delete-session';
             
-            // Close modal
-            deleteModal.style.display = 'none';
-            sessionToDelete = null;
+            const sessionIdInput = document.createElement('input');
+            sessionIdInput.type = 'hidden';
+            sessionIdInput.name = 'sessionId';
+            sessionIdInput.value = sessionToDelete;
+            
+            form.appendChild(actionInput);
+            form.appendChild(sessionIdInput);
+            document.body.appendChild(form);
+            form.submit();
         }
     });
     
