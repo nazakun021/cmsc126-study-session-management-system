@@ -1,3 +1,6 @@
+// Dashboard functionality
+console.log('Dashboard.js loaded successfully');
+
 // Wait for both DOM and Feather Icons to be loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Feather icons
@@ -48,8 +51,6 @@ function renderSessions(sessions) {
         populateSessionCard(clone, session);
         container.appendChild(clone);
     });
-    
-    feather.replace();
 }
 
 function populateSessionCard(clone, session) {
@@ -121,6 +122,35 @@ function setupEventListeners() {
             btn.closest('.modal').style.display = 'none';
         });
     });
+    
+    // Add Session Modal Logic
+    const emptyAddBtn = document.getElementById('empty-add-btn');
+    const addSessionModal = document.getElementById('add-session-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const cancelAddBtn = document.getElementById('cancel-add');
+
+    // Open the Add Session Modal
+    const openAddSessionModal = () => {
+        addSessionModal.style.display = 'flex';
+    };
+
+    addSessionBtn.addEventListener('click', openAddSessionModal);
+    emptyAddBtn.addEventListener('click', openAddSessionModal);
+
+    // Close the Add Session Modal
+    const closeAddSessionModal = () => {
+        addSessionModal.style.display = 'none';
+    };
+
+    closeModalBtn.addEventListener('click', closeAddSessionModal);
+    cancelAddBtn.addEventListener('click', closeAddSessionModal);
+
+    // Close modal when clicking outside the modal content
+    window.addEventListener('click', function (event) {
+        if (event.target === addSessionModal) {
+            closeAddSessionModal();
+        }
+    });
 }
 
 async function handleAddSession(e) {
@@ -181,4 +211,4 @@ async function handleUpdateSession(e) {
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
-} 
+}

@@ -1,3 +1,18 @@
+// Main application script
+console.log('Main script.js loaded successfully');
+
+// Add error handling for script loading
+window.addEventListener('error', function(e) {
+    if (e.target.tagName === 'SCRIPT') {
+        console.error('Script loading error:', e.target.src);
+        // You could also show a user-friendly error message
+        const Toast = window.Toast;
+        if (Toast) {
+            Toast.show('Failed to load some resources. Please refresh the page.', 'error');
+        }
+    }
+}, true);
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Feather icons
     feather.replace();

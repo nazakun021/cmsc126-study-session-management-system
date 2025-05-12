@@ -112,7 +112,7 @@ requireLogin();
                     </div>
                     
                     <!-- Empty State -->
-                    <div id="empty-state" class="empty-state">
+                    <div id="empty-add-btn" class="empty-state">
                         <div class="empty-state-icon">
                             <i data-feather="calendar"></i>
                         </div>
@@ -152,14 +152,11 @@ requireLogin();
                         <label for="sessionSubject">Subject</label>
                         <select id="sessionSubject" name="subjectID" required>
                             <option value="">Select a subject</option>
-                            <?php
-                            // Fetch subjects from database
-                            $stmt = $pdo->query("SELECT subjectID, subjectName FROM subjects ORDER BY subjectName");
-                            while ($subject = $stmt->fetch()) {
-                                echo "<option value='" . htmlspecialchars($subject['subjectID']) . "'>" . 
-                                     htmlspecialchars($subject['subjectName']) . "</option>";
-                            }
-                            ?>
+                            <?php foreach ($subjects as $subject): ?>
+                                <option value="<?php echo htmlspecialchars($subject['subjectID']); ?>">
+                                    <?php echo htmlspecialchars($subject['subjectName']); ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group">
@@ -261,13 +258,8 @@ requireLogin();
     </template>
 
     <!-- Scripts -->
-    <script src="/cmsc126-study-session-management-system/public/js/script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            feather.replace();
-        });
-    </script>
     <script src="/cmsc126-study-session-management-system/public/js/utils.js"></script>
+    <script src="/cmsc126-study-session-management-system/public/js/script.js"></script>
     <script src="/cmsc126-study-session-management-system/public/js/dashboard.js"></script>
 </body>
 </html>

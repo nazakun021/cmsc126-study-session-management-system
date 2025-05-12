@@ -179,6 +179,8 @@ requireLogin();
         </div>
     </template>
 
-    <script src="/cmsc126-study-session-management-system/public/js/script.js"></script>
+    <script src="/cmsc126-study-session-management-system/public/js/utils.js"></script>
+    <script src="/cmsc126-study-session-management-system/public/js/attendance.js"></script>
+    
 </body>
 </html>

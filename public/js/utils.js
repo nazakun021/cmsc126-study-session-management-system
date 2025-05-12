@@ -1,3 +1,6 @@
+// Utility functions
+console.log('Utils.js loaded successfully');
+
 // Toast notification system
 const Toast = {
     show(message, type = 'info') {
