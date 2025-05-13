@@ -6,6 +6,10 @@ use App\Core\Model;
 class User extends Model {
     protected $table = 'user';
 
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
+    }
+
     public function login($username, $password) {
         $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE userName = ?");
         $stmt->execute([$username]);

@@ -1,13 +1,16 @@
 <?php
+// For Error Checking
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL); // For Error Checking
+error_reporting(E_ALL); 
 
-session_start(); // Initializes Session Management
+session_start();
 
 // Include Configuration and Controllers
 require_once '../app/config/db_connection.php';
 require_once '../app/core/Router.php';
+require_once '../app/core/Controller.php';
+require_once '../app/core/Model.php';
 require_once '../app/controllers/AuthController.php';
 require_once '../app/controllers/StudySessionController.php';
 require_once '../app/Models/User.php';
@@ -44,5 +47,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Dispatch the Request    
     $router->dispatch($action);
 }
-
 ?>

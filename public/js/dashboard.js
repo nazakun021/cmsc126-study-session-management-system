@@ -1,14 +1,18 @@
 // Dashboard functionality
 console.log('Dashboard.js loaded successfully');
 
-// Wait for both DOM and Feather Icons to be loaded
+// Ensure DOM is fully loaded before executing scripts
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Feather icons
-    feather.replace();
-    
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    } else {
+        console.warn('Feather icons library is not loaded.');
+    }
+
     // Load initial data
     loadDashboardData();
-    
+
     // Add event listeners
     setupEventListeners();
 });
@@ -16,36 +20,55 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadDashboardData() {
     try {
         const data = await Ajax.request('/api/dashboard/stats');
-        updateStats(data);
-        renderSessions(data.sessions);
+        if (data) {
+            updateStats(data);
+            renderSessions(data.sessions);
+        } else {
+            console.error('No data received from the server.');
+        }
     } catch (error) {
         ErrorHandler.handle(error);
     }
 }
 
 function updateStats(data) {
-    document.getElementById('total-sessions').textContent = data.totalSessions;
-    document.getElementById('upcoming-sessions').textContent = data.upcomingSessions;
-    document.getElementById('total-subjects').textContent = data.totalSubjects;
-    document.getElementById('avg-attendance').textContent = data.avgAttendance + '%';
+    const totalSessions = document.getElementById('total-sessions');
+    const upcomingSessions = document.getElementById('upcoming-sessions');
+    const totalSubjects = document.getElementById('total-subjects');
+    const avgAttendance = document.getElementById('avg-attendance');
+
+    if (totalSessions) totalSessions.textContent = data.totalSessions;
+    if (upcomingSessions) upcomingSessions.textContent = data.upcomingSessions;
+    if (totalSubjects) totalSubjects.textContent = data.totalSubjects;
+    if (avgAttendance) avgAttendance.textContent = data.avgAttendance + '%';
 }
 
 function renderSessions(sessions) {
     const container = document.getElementById('sessions-container');
     const emptyState = document.getElementById('empty-state');
-    
+
+    if (!container || !emptyState) {
+        console.error('Session container or empty state element is missing.');
+        return;
+    }
+
     if (sessions.length === 0) {
         container.style.display = 'none';
         emptyState.style.display = 'flex';
         return;
     }
-    
+
     container.style.display = 'block';
     emptyState.style.display = 'none';
-    
+
     const template = document.getElementById('session-card-template');
+    if (!template) {
+        console.error('Session card template is missing.');
+        return;
+    }
+
     container.innerHTML = '';
-    
+
     sessions.forEach(session => {
         const clone = document.importNode(template.content, true);
         populateSessionCard(clone, session);
@@ -59,17 +82,17 @@ function populateSessionCard(clone, session) {
     clone.querySelector('.card-date').textContent = formatDate(session.date);
     clone.querySelector('.card-time').textContent = `${session.startTime} - ${session.endTime}`;
     clone.querySelector('.card-location').textContent = session.location;
-    
+
     const card = clone.querySelector('.session-card');
     card.dataset.id = session.id;
-    
+
     setupCardEventListeners(card, session);
 }
 
 function setupCardEventListeners(card, session) {
     const deleteBtn = card.querySelector('.delete-session');
     deleteBtn.addEventListener('click', () => handleDeleteSession(session.id));
-    
+
     const editBtn = card.querySelector('.edit-session');
     editBtn.addEventListener('click', () => handleEditSession(session));
 }
@@ -90,7 +113,7 @@ function handleEditSession(session) {
     // Populate and show edit modal
     const modal = document.getElementById('edit-session-modal');
     const form = modal.querySelector('form');
-    
+
     form.querySelector('[name="sessionId"]').value = session.id;
     form.querySelector('[name="title"]').value = session.title;
     form.querySelector('[name="subject"]').value = session.subject;
@@ -98,7 +121,7 @@ function handleEditSession(session) {
     form.querySelector('[name="startTime"]').value = session.startTime;
     form.querySelector('[name="endTime"]').value = session.endTime;
     form.querySelector('[name="location"]').value = session.location;
-    
+
     modal.style.display = 'flex';
 }
 
@@ -108,21 +131,21 @@ function setupEventListeners() {
     addSessionBtn.addEventListener('click', () => {
         document.getElementById('add-session-modal').style.display = 'flex';
     });
-    
+
     // Form submissions
     const addSessionForm = document.getElementById('addSessionForm');
     addSessionForm.addEventListener('submit', handleAddSession);
-    
+
     const editSessionForm = document.getElementById('editSessionForm');
     editSessionForm.addEventListener('submit', handleUpdateSession);
-    
+
     // Modal close buttons
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             btn.closest('.modal').style.display = 'none';
         });
     });
-    
+
     // Add Session Modal Logic
     const emptyAddBtn = document.getElementById('empty-add-btn');
     const addSessionModal = document.getElementById('add-session-modal');
@@ -155,23 +178,23 @@ function setupEventListeners() {
 
 async function handleAddSession(e) {
     e.preventDefault();
-    
+
     try {
         RateLimiter.check('addSession');
-        
+
         const errors = FormValidator.validate(e.target);
         if (errors.length > 0) {
             const errorDiv = FormValidator.showErrors(errors);
             e.target.prepend(errorDiv);
             return;
         }
-        
+
         const formData = new FormData(e.target);
         const response = await Ajax.request('/api/sessions', {
             method: 'POST',
             body: formData
         });
-        
+
         Toast.show('Session created successfully', 'success');
         e.target.closest('.modal').style.display = 'none';
         e.target.reset();
@@ -183,7 +206,7 @@ async function handleAddSession(e) {
 
 async function handleUpdateSession(e) {
     e.preventDefault();
-    
+
     try {
         const errors = FormValidator.validate(e.target);
         if (errors.length > 0) {
@@ -191,15 +214,15 @@ async function handleUpdateSession(e) {
             e.target.prepend(errorDiv);
             return;
         }
-        
+
         const formData = new FormData(e.target);
         const sessionId = formData.get('sessionId');
-        
+
         await Ajax.request(`/api/sessions/${sessionId}`, {
             method: 'PUT',
             body: formData
         });
-        
+
         Toast.show('Session updated successfully', 'success');
         e.target.closest('.modal').style.display = 'none';
         loadDashboardData();

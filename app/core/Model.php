@@ -5,11 +5,6 @@ class Model {
     protected $pdo;
     protected $table;
 
-    public function __construct() {
-        global $pdo;
-        $this->pdo = $pdo;
-    }
-
     public function find($id) {
         $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
         $stmt->execute([$id]);

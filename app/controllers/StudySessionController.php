@@ -1,17 +1,20 @@
 <?php
-require_once __DIR__ . '/../Models/StudySession.php';
+namespace App\Controllers;
 
-class StudySessionController {
+use App\Core\Controller;
+use App\Models\StudySession;
+
+class StudySessionController extends Controller {
     private $studySessionModel;
-    private $pdo;
 
     public function __construct() {
         global $pdo;
-        $this->pdo = $pdo;
         $this->studySessionModel = new StudySession($pdo);
     }
 
     public function createSession() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'subjectID' => $_POST['subjectID'],
@@ -30,13 +33,13 @@ class StudySessionController {
             } else {
                 $_SESSION['error'] = "Failed to create study session.";
             }
-            
-            header("Location: /cmsc126-study-session-management-system/public/dashboard");
-            exit;
+            $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
         }
     }
 
     public function updateSession($sessionId) {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'subjectID' => $_POST['subjectID'],
@@ -55,21 +58,19 @@ class StudySessionController {
             } else {
                 $_SESSION['error'] = "Failed to update study session.";
             }
-            
-            header("Location: /cmsc126-study-session-management-system/public/dashboard");
-            exit;
+            $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
         }
     }
 
     public function deleteSession($sessionId) {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
         if ($this->studySessionModel->deleteSession($sessionId)) {
             $_SESSION['success'] = "Study session deleted successfully!";
         } else {
             $_SESSION['error'] = "Failed to delete study session.";
         }
-        
-        header("Location: /cmsc126-study-session-management-system/public/dashboard");
-        exit;
+        $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
     }
 }
 ?> 

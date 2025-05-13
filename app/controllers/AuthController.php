@@ -10,8 +10,9 @@ class AuthController extends Controller {
     private $courseModel;
     
     public function __construct() {
-        $this->userModel = new User();
-        $this->courseModel = new CourseModel();
+        global $pdo;
+        $this->userModel = new User($pdo);
+        $this->courseModel = new CourseModel($pdo);
     }
 
     public function showLogin() {

@@ -1,8 +1,11 @@
 <?php
-require_once __DIR__ . '/../Models/StudySession.php';
-require_once __DIR__ . '/../Models/CourseModel.php';
+namespace App\Controllers;
 
-class DashboardController {
+use App\Core\Controller;
+use App\Models\StudySession;
+use App\Models\CourseModel;
+
+class DashboardController extends Controller {
     private $studySessionModel;
     private $courseModel;
 
@@ -13,13 +16,17 @@ class DashboardController {
     }
 
     public function showDashboard() {
-        // Fetch data from models
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
         $subjects = $this->courseModel->getAllSubjects();
         $sessions = $this->studySessionModel->getUpcomingSessions();
         $csrfToken = $this->generateCsrfToken();
 
-        // Pass data to the view
-        require_once '../app/views/dashboard.php';
+        $this->view('dashboard', [
+            'subjects' => $subjects,
+            'sessions' => $sessions,
+            'csrfToken' => $csrfToken
+        ]);
     }
 
     private function generateCsrfToken() {

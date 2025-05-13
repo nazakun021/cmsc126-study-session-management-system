@@ -1,7 +1,11 @@
 <?php
-class StudySession {
-    private $pdo;
+namespace App\Models;
 
+use App\Core\Model;
+use \PDO;
+use \PDOException;
+
+class StudySession extends Model {
     public function __construct($pdo) {
         $this->pdo = $pdo;
     }
@@ -98,5 +102,15 @@ class StudySession {
             return false;
         }
     }
+
+    public function getUpcomingSessions() {
+        try {
+            $stmt = $this->pdo->query("SELECT * FROM reviewsession WHERE reviewDate >= CURDATE() ORDER BY reviewDate ASC, reviewStartTime ASC");
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log('Error fetching upcoming sessions: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
-?> 
+?>

@@ -1,7 +1,9 @@
 <?php
-class CourseModel {
-    private $pdo;
+namespace App\Models;
 
+use App\Core\Model;
+
+class CourseModel extends Model {
     public function __construct($pdo) {
         $this->pdo = $pdo;
     }
@@ -14,6 +16,18 @@ class CourseModel {
             return $courses;
         } catch (PDOException $e) {
             error_log("Error fetching courses from Database: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getAllSubjects() {
+        try {
+            $stmt = $this->pdo->query("SELECT subjectID, subjectName FROM Subjects ORDER BY subjectName ASC");
+            $subjects = $stmt->fetchAll();
+            $stmt->closeCursor();
+            return $subjects;
+        } catch (\PDOException $e) {
+            error_log("Error fetching subjects from Database: " . $e->getMessage());
             return false;
         }
     }
