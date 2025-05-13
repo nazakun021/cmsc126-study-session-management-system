@@ -59,6 +59,7 @@ class StudySession extends Model {
 
             // Sanitize input data
             $sanitizedData = [
+                ':creatorUserID' => filter_var($data['creatorUserID'], FILTER_SANITIZE_NUMBER_INT),
                 ':subjectID' => filter_var($data['subjectID'], FILTER_SANITIZE_NUMBER_INT),
                 ':reviewTitle' => filter_var($data['reviewTitle'], FILTER_SANITIZE_STRING),
                 ':reviewDate' => $data['reviewDate'],
@@ -72,6 +73,7 @@ class StudySession extends Model {
 
             $stmt = $this->pdo->prepare("
                 INSERT INTO {$this->table} (
+                    creatorUserID,
                     subjectID, 
                     reviewTitle, 
                     reviewDate, 
@@ -82,6 +84,7 @@ class StudySession extends Model {
                     reviewTopic, 
                     reviewStatus
                 ) VALUES (
+                    :creatorUserID,
                     :subjectID,
                     :reviewTitle,
                     :reviewDate,

@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show/hide empty state based on sessions
     function updateEmptyState() {
+        if (!emptyState || !sessionsContainer) return;
         if (sessions.length === 0) {
             emptyState.style.display = 'flex';
             sessionsContainer.style.display = 'none';
@@ -98,88 +99,117 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners
     
     // Open add session modal
-    addSessionBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'flex';
-    });
+    if (addSessionBtn) {
+        addSessionBtn.addEventListener('click', () => {
+            if (addSessionModal) addSessionModal.style.display = 'flex';
+        });
+    }
     
     // Open add session modal from empty state
-    emptyAddBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'flex';
-    });
+    if (emptyAddBtn) {
+        emptyAddBtn.addEventListener('click', () => {
+            if (addSessionModal) addSessionModal.style.display = 'flex';
+        });
+    }
     
     // Close add session modal
-    closeModalBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'none';
-        addSessionForm.reset();
-    });
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            if (addSessionModal) addSessionModal.style.display = 'none';
+            if (addSessionForm) addSessionForm.reset();
+        });
+    }
     
     // Cancel add session
-    cancelAddBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'none';
-        addSessionForm.reset();
-    });
+    if (cancelAddBtn) {
+        cancelAddBtn.addEventListener('click', () => {
+            if (addSessionModal) addSessionModal.style.display = 'none';
+            if (addSessionForm) addSessionForm.reset();
+        });
+    }
     
     // Submit add session form
-    addSessionForm.addEventListener('submit', (e) => {
+    addSessionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Get form values
-        const title = document.getElementById('session-title').value;
-        const subject = document.getElementById('session-subject').value;
-        const date = document.getElementById('session-date').value;
-        const startTime = document.getElementById('session-start-time').value;
-        const endTime = document.getElementById('session-end-time').value;
-        const location = document.getElementById('session-location').value;
-        
-        // Create new session object
-        const newSession = {
-            id: generateId(),
-            title,
-            subject,
-            date,
-            startTime: formatTime(startTime),
-            endTime: formatTime(endTime),
-            location,
-            status: 'scheduled'
-        };
-        
-        // Add to sessions array
-        sessions.push(newSession);
-        
-        // Render sessions
-        renderSessions();
-        
-        // Close modal and reset form
-        addSessionModal.style.display = 'none';
-        addSessionForm.reset();
+        try {
+            // Get form values
+            const formData = new FormData(addSessionForm);
+            
+            // Add creator user ID from session
+            const userId = document.querySelector('meta[name="user-id"]')?.content;
+            if (!userId) {
+                throw new Error('User ID not found. Please log in again.');
+            }
+            formData.append('creatorUserID', userId);
+            
+            // Send to backend
+            const response = await fetch('/api/sessions', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message
+                const toast = document.createElement('div');
+                toast.className = 'toast success';
+                toast.textContent = 'Session created successfully!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+                
+                // Close modal and reset form
+                addSessionModal.style.display = 'none';
+                addSessionForm.reset();
+                
+                // Refresh sessions list
+                loadSessions();
+            } else {
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'form-error';
+                errorDiv.textContent = result.error || 'Failed to create session';
+                addSessionForm.prepend(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+        } catch (error) {
+            console.error('Error creating session:', error);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'form-error';
+            errorDiv.textContent = 'An error occurred. Please try again.';
+            addSessionForm.prepend(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
     });
     
     // Close delete modal
-    closeDeleteModalBtn.addEventListener('click', () => {
-        deleteModal.style.display = 'none';
-        sessionToDelete = null;
-    });
+    if (closeDeleteModalBtn) {
+        closeDeleteModalBtn.addEventListener('click', () => {
+            if (deleteModal) deleteModal.style.display = 'none';
+            sessionToDelete = null;
+        });
+    }
     
     // Cancel delete
-    cancelDeleteBtn.addEventListener('click', () => {
-        deleteModal.style.display = 'none';
-        sessionToDelete = null;
-    });
+    if (cancelDeleteBtn) {
+        cancelDeleteBtn.addEventListener('click', () => {
+            if (deleteModal) deleteModal.style.display = 'none';
+            sessionToDelete = null;
+        });
+    }
     
     // Confirm delete
-    confirmDeleteBtn.addEventListener('click', () => {
-        if (sessionToDelete) {
-            // Remove from array
-            sessions = sessions.filter(session => session.id !== sessionToDelete);
-            
-            // Render sessions
-            renderSessions();
-            
-            // Close modal
-            deleteModal.style.display = 'none';
-            sessionToDelete = null;
-        }
-    });
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (sessionToDelete) {
+                sessions = sessions.filter(session => session.id !== sessionToDelete);
+                renderSessions();
+                if (deleteModal) deleteModal.style.display = 'none';
+                sessionToDelete = null;
+            }
+        });
+    }
     
     // Close modals when clicking outside
     window.addEventListener('click', (e) => {
@@ -197,9 +227,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
     const sidebar = document.querySelector('.sidebar');
     
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
     
     // Dropdown toggle
     document.addEventListener('click', function(event) {
@@ -214,6 +246,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Load sessions from backend
+    async function loadSessions() {
+        try {
+            const response = await fetch('/api/sessions');
+            const result = await response.json();
+            
+            if (result.success) {
+                sessions = result.sessions;
+                renderSessions();
+            } else {
+                console.error('Failed to load sessions:', result.error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = 'Failed to load sessions. Please try again.';
+                sessionsContainer.prepend(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+        } catch (error) {
+            console.error('Error loading sessions:', error);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = 'An error occurred while loading sessions.';
+            sessionsContainer.prepend(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+    }
+
     // Initialize the page
-    updateEmptyState();
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSessions();
+        updateEmptyState();
+    });
 });
