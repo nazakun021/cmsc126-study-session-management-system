@@ -2,33 +2,88 @@
 namespace App\Models;
 
 use App\Core\Model;
+use PDO;
+use PDOException;
 
 class CourseModel extends Model {
+    protected $table = 'Courses';
+
     public function __construct($pdo) {
         $this->pdo = $pdo;
     }
 
     public function getAllCourses() {
-        try{
-            $stmtCourses = $this->pdo->query("SELECT courseID, courseName FROM Courses ORDER BY courseName ASC");
-            $courses = $stmtCourses->fetchAll();
-            $stmtCourses->closeCursor();
-            return $courses;
+        try {
+            $stmt = $this->pdo->query("
+                SELECT courseID, courseName 
+                FROM {$this->table} 
+                ORDER BY courseName ASC
+            ");
+            
+            return [
+                'success' => true,
+                'courses' => $stmt->fetchAll(PDO::FETCH_ASSOC)
+            ];
         } catch (PDOException $e) {
             error_log("Error fetching courses from Database: " . $e->getMessage());
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Failed to fetch courses.'
+            ];
         }
     }
 
     public function getAllSubjects() {
         try {
-            $stmt = $this->pdo->query("SELECT subjectID, subjectName FROM Subjects ORDER BY subjectName ASC");
-            $subjects = $stmt->fetchAll();
-            $stmt->closeCursor();
-            return $subjects;
-        } catch (\PDOException $e) {
+            $stmt = $this->pdo->query("
+                SELECT subjectID, subjectName 
+                FROM Subjects 
+                ORDER BY subjectName ASC
+            ");
+            
+            return [
+                'success' => true,
+                'subjects' => $stmt->fetchAll(PDO::FETCH_ASSOC)
+            ];
+        } catch (PDOException $e) {
             error_log("Error fetching subjects from Database: " . $e->getMessage());
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Failed to fetch subjects.'
+            ];
+        }
+    }
+
+    public function getCourseById($courseId) {
+        try {
+            $courseId = filter_var($courseId, FILTER_SANITIZE_NUMBER_INT);
+            
+            $stmt = $this->pdo->prepare("
+                SELECT courseID, courseName 
+                FROM {$this->table} 
+                WHERE courseID = :courseId
+            ");
+            
+            $stmt->execute([':courseId' => $courseId]);
+            $course = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($course) {
+                return [
+                    'success' => true,
+                    'course' => $course
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'error' => 'Course not found.'
+            ];
+        } catch (PDOException $e) {
+            error_log("Error fetching course from Database: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Failed to fetch course details.'
+            ];
         }
     }
 }

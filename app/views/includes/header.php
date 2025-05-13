@@ -11,7 +11,6 @@ $user = getCurrentUser();
     <div class="header-right">
         <div class="dropdown">
             <button class="dropdown-toggle">
-                <div class="user-avatar">UP</div>
                 <span class="user-name"><?php echo htmlspecialchars($user['username']); ?></span>
                 <i data-feather="chevron-down"></i>
             </button>

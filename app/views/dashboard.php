@@ -54,25 +54,10 @@ requireLogin();
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Header -->
-            <header class="header">
-                <div class="header-left">
-                    <h2>Dashboard</h2>
-                </div>
-                <div class="header-right">
-                    <div class="dropdown">
-                        <button class="dropdown-toggle">
-                            <div class="user-avatar">UP</div>
-                            <span class="user-name"><?php echo htmlspecialchars($_SESSION['username'] ?? 'Guest'); ?></span>
-                            <i data-feather="chevron-down"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a href="/cmsc126-study-session-management-system/app/views/profile.php" class="dropdown-item">Profile</a>
-                            <a href="/cmsc126-study-session-management-system/app/views/logout.php" class="dropdown-item">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <?php 
+            $pageTitle = 'Dashboard';
+            require_once __DIR__ . '/includes/header.php'; 
+            ?>
 
             <!-- Dashboard Content -->
             <div class="content-container">
@@ -96,9 +81,6 @@ requireLogin();
                         <div class="stat-card-icon orange">
                             <i data-feather="clock"></i>
                         </div>
-                    </div>
-                    
-                        
                     </div>
                 </div>
 

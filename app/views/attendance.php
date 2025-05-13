@@ -181,6 +181,6 @@ requireLogin();
 
     <script src="/cmsc126-study-session-management-system/public/js/utils.js"></script>
     <script src="/cmsc126-study-session-management-system/public/js/attendance.js"></script>
-    
+    <script src="/cmsc126-study-session-management-system/public/js/dropdown.js"></script>
 </body>
 </html>

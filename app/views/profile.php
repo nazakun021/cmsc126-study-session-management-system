@@ -1,3 +1,27 @@
+<?php
+require_once __DIR__ . '/../config/init.php';
+requireLogin();
+require_once __DIR__ . '/../config/db_connection.php';
+// Load models
+require_once __DIR__ . '/../core/Model.php';
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/CourseModel.php';
+global $pdo;
+
+// Get user info
+$userModel = new \App\Models\User($pdo);
+$courseModel = new \App\Models\CourseModel($pdo);
+
+$currentUser = getCurrentUser();
+$user = $userModel->getUserById($currentUser['userId']);
+$courseName = '';
+if ($user && !empty($user['courseID'])) {
+    $courseResult = $courseModel->getCourseById($user['courseID']);
+    if ($courseResult && isset($courseResult['success']) && $courseResult['success']) {
+        $courseName = $courseResult['course']['courseName'];
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,8 +81,8 @@
             <div class="header-right">
                 <div class="dropdown">
                     <button class="dropdown-toggle">
-                        <div class="user-avatar">UP</div>
-                        <span class="user-name">BLANK</span>
+                        <div class="user-avatar"><?php echo strtoupper(substr(htmlspecialchars($user['userName'] ?? ''), 0, 2)); ?></div>
+                        <span class="user-name"><?php echo htmlspecialchars($user['userName'] ?? ''); ?></span>
                         <i data-feather="chevron-down"></i>
                     </button>
                     <div class="dropdown-menu">
@@ -74,17 +98,17 @@
             <div class="profile-card">
                 <div class="profile-item">
                     <div class="label">Username</div>
-                    <div class="value">adrianepena</div>
+                    <div class="value"><?php echo htmlspecialchars($user['userName'] ?? ''); ?></div>
                 </div>
 
                 <div class="profile-item">
                     <div class="label">Email Address</div>
-                    <div class="value">adriane.pena@example.com</div>
+                    <div class="value"><?php echo htmlspecialchars($user['email'] ?? ''); ?></div>
                 </div>
 
                 <div class="profile-item">
                     <div class="label">Course</div>
-                    <div class="value">BS Computer Science</div>
+                    <div class="value"><?php echo htmlspecialchars($courseName); ?></div>
                 </div>
             </div>
         </div>
