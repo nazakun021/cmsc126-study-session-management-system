@@ -228,18 +228,28 @@ class StudySession extends Model {
 
     public function getUpcomingSessions() {
         try {
-            $stmt = $this->pdo->query("
-                SELECT * FROM {$this->table} 
-                WHERE reviewDate >= CURDATE() 
-                ORDER BY reviewDate ASC, reviewStartTime ASC
+            $userId = $_SESSION['userId'];
+            
+            $stmt = $this->pdo->prepare("
+                SELECT rs.*, s.subjectName 
+                FROM {$this->table} rs
+                INNER JOIN subjects s ON rs.subjectID = s.subjectID
+                INNER JOIN course_subjects cs ON s.subjectID = cs.subjectID
+                INNER JOIN user_courses uc ON cs.courseID = uc.courseID
+                WHERE uc.userID = :userId 
+                AND rs.reviewDate >= CURDATE()
+                ORDER BY rs.reviewDate ASC, rs.reviewStartTime ASC
             ");
+            
+            $stmt->execute([':userId' => $userId]);
+            $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             return [
                 'success' => true,
-                'sessions' => $stmt->fetchAll(PDO::FETCH_ASSOC)
+                'sessions' => $sessions
             ];
         } catch (PDOException $e) {
-            error_log('Error fetching upcoming sessions: ' . $e->getMessage());
+            error_log("Error fetching upcoming sessions: " . $e->getMessage());
             return [
                 'success' => false,
                 'error' => 'Failed to fetch upcoming sessions.'

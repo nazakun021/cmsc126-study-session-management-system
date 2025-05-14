@@ -18,8 +18,19 @@ class DashboardController extends Controller {
     public function showDashboard() {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
-        $subjects = $this->courseModel->getAllSubjects();
-        $sessions = $this->studySessionModel->getUpcomingSessions();
+        if (!isset($_SESSION['userId'])) {
+            $this->redirect('/cmsc126-study-session-management-system/public/login');
+        }
+
+        // Get subjects related to user's course
+        $userId = $_SESSION['userId'];
+        $subjects = $this->courseModel->getSubjectsByUserId($userId);
+        
+        // Get upcoming sessions
+        $sessionsResult = $this->studySessionModel->getUpcomingSessions();
+        $sessions = $sessionsResult['success'] ? $sessionsResult['sessions'] : [];
+        
+        // Generate CSRF token
         $csrfToken = $this->generateCsrfToken();
 
         $this->view('dashboard', [

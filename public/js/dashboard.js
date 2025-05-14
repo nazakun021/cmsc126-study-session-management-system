@@ -19,15 +19,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadDashboardData() {
     try {
-        const data = await Ajax.request('/api/dashboard/stats');
+        const response = await fetch('/cmsc126-study-session-management-system/public/api/dashboard/stats');
+        if (!response.ok) {
+            throw new Error('Failed to fetch dashboard data');
+        }
+        
+        const data = await response.json();
         if (data) {
             updateStats(data);
             renderSessions(data.sessions);
-        } else {
-            console.error('No data received from the server.');
         }
     } catch (error) {
-        ErrorHandler.handle(error);
+        console.error('Error loading dashboard data:', error);
+        Toast.show('Failed to load dashboard data', 'error');
     }
 }
 
@@ -45,14 +49,14 @@ function updateStats(data) {
 
 function renderSessions(sessions) {
     const container = document.getElementById('sessions-container');
-    const emptyState = document.getElementById('empty-state');
+    const emptyState = document.getElementById('empty-add-btn');
 
     if (!container || !emptyState) {
         console.error('Session container or empty state element is missing.');
         return;
     }
 
-    if (sessions.length === 0) {
+    if (!sessions || sessions.length === 0) {
         container.style.display = 'none';
         emptyState.style.display = 'flex';
         return;
@@ -74,14 +78,17 @@ function renderSessions(sessions) {
         populateSessionCard(clone, session);
         container.appendChild(clone);
     });
+
+    // Reinitialize Feather icons
+    feather.replace();
 }
 
 function populateSessionCard(clone, session) {
-    clone.querySelector('.card-title').textContent = session.title;
-    clone.querySelector('.card-subject').textContent = session.subject;
-    clone.querySelector('.card-date').textContent = formatDate(session.date);
-    clone.querySelector('.card-time').textContent = `${session.startTime} - ${session.endTime}`;
-    clone.querySelector('.card-location').textContent = session.location;
+    clone.querySelector('.card-title').textContent = session.reviewTitle;
+    clone.querySelector('.card-subject').textContent = session.subjectName;
+    clone.querySelector('.card-date').textContent = formatDate(session.reviewDate);
+    clone.querySelector('.card-time').textContent = `${session.reviewStartTime} - ${session.reviewEndTime}`;
+    clone.querySelector('.card-location').textContent = session.reviewLocation;
 
     const card = clone.querySelector('.session-card');
     card.dataset.id = session.id;
@@ -180,27 +187,34 @@ async function handleAddSession(e) {
     e.preventDefault();
 
     try {
-        RateLimiter.check('addSession');
-
-        const errors = FormValidator.validate(e.target);
-        if (errors.length > 0) {
-            const errorDiv = FormValidator.showErrors(errors);
-            e.target.prepend(errorDiv);
-            return;
-        }
-
         const formData = new FormData(e.target);
-        const response = await Ajax.request('/api/sessions', {
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        formData.append('csrf_token', csrfToken);
+
+        const response = await fetch('/cmsc126-study-session-management-system/public/create-session', {
             method: 'POST',
             body: formData
         });
 
-        Toast.show('Session created successfully', 'success');
-        e.target.closest('.modal').style.display = 'none';
-        e.target.reset();
-        loadDashboardData();
+        if (!response.ok) {
+            throw new Error('Failed to create session');
+        }
+
+        const result = await response.json();
+        
+        if (result.success) {
+            Toast.show('Session created successfully', 'success');
+            e.target.closest('.modal').style.display = 'none';
+            e.target.reset();
+            loadDashboardData(); // Reload the dashboard data
+        } else {
+            throw new Error(result.message || 'Failed to create session');
+        }
     } catch (error) {
-        ErrorHandler.handle(error);
+        console.error('Error creating session:', error);
+        Toast.show(error.message || 'Failed to create session', 'error');
     }
 }
 

@@ -86,5 +86,24 @@ class CourseModel extends Model {
             ];
         }
     }
+
+    public function getSubjectsByUserId($userId) {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT DISTINCT s.* 
+                FROM subjects s
+                INNER JOIN course_subjects cs ON s.subjectID = cs.subjectID
+                INNER JOIN user_courses uc ON cs.courseID = uc.courseID
+                WHERE uc.userID = ?
+                ORDER BY s.subjectName
+            ");
+            
+            $stmt->execute([$userId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching subjects for user: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>
