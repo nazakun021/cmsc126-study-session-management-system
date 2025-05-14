@@ -12,10 +12,20 @@ class StudySessionController extends Controller {
         $this->studySessionModel = new StudySession($pdo);
     }
 
+    public function getAllSessions() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        
+        $sessions = $this->studySessionModel->getAllSessions();
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'sessions' => $sessions]);
+        exit;
+    }
+
     public function createSession() {
         if (session_status() === PHP_SESSION_NONE) session_start();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            header('Content-Type: application/json');
             $data = [
                 'subjectID' => $_POST['subjectID'],
                 'reviewTitle' => $_POST['reviewTitle'],
@@ -28,12 +38,13 @@ class StudySessionController extends Controller {
                 'reviewStatus' => 'scheduled'
             ];
 
-            if ($this->studySessionModel->createSession($data)) {
-                $_SESSION['success'] = "Study session created successfully!";
+            $result = $this->studySessionModel->createSession($data);
+            if ($result['success']) {
+                echo json_encode(['success' => true, 'message' => 'Study session created successfully!', 'sessionId' => $result['sessionId']]);
             } else {
-                $_SESSION['error'] = "Failed to create study session.";
+                echo json_encode(['success' => false, 'message' => 'Failed to create study session.', 'errors' => $result['errors'] ?? []]);
             }
-            $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
+            exit;
         }
     }
 

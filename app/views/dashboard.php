@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../config/init.php';
 requireLogin();
 
+require_once __DIR__ . '/../Models/StudySession.php';
+$studySessionModel = new \App\Models\StudySession($pdo);
+$sessions = $studySessionModel->getAllSessions();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +70,7 @@ requireLogin();
                     <div class="stat-card">
                         <div class="stat-card-content">
                             <h3 class="stat-card-title">Total Sessions</h3>
-                            <p class="stat-card-value" id="total-sessions">0</p>
+                            <p class="stat-card-value" id="total-sessions"><?php echo count($sessions); ?></p>
                         </div>
                         <div class="stat-card-icon blue">
                             <i data-feather="calendar"></i>
@@ -77,7 +80,13 @@ requireLogin();
                     <div class="stat-card">
                         <div class="stat-card-content">
                             <h3 class="stat-card-title">Upcoming Sessions</h3>
-                            <p class="stat-card-value" id="upcoming-sessions">0</p>
+                            <p class="stat-card-value" id="upcoming-sessions"><?php
+                                $upcomingSessions = array_filter($sessions, function($session) {
+                                    $sessionDate = strtotime($session['reviewDate']);
+                                    return $sessionDate >= strtotime('today');
+                                });
+                                echo count($upcomingSessions);
+                            ?></p>
                         </div>
                         <div class="stat-card-icon orange">
                             <i data-feather="clock"></i>
@@ -94,11 +103,48 @@ requireLogin();
                         </button>
                     </div>
                     
-                    <!-- Empty State -->
+                    <!-- Sessions List -->
+                    <?php if (empty($sessions)): ?>
                     <div id="empty-add-btn" class="empty-state">
                         <div class="empty-state-icon">
                             <i data-feather="calendar"></i>
                         </div>
+                        <h3>No review sessions are scheduled at this time</h3>
+                    </div>
+                    <?php else: ?>
+                    <div class="sessions-list">
+                        <?php foreach ($sessions as $session): ?>
+                        <div class="session-card">
+                            <div class="session-content">
+                                <h4 class="session-title"><?php echo htmlspecialchars($session['reviewTitle']); ?></h4>
+                                <div class="session-details">
+                                    <div class="session-detail">
+                                        <i data-feather="book"></i>
+                                        <span><?php echo htmlspecialchars($session['courseName']); ?></span>
+                                    </div>
+                                    <div class="session-detail">
+                                        <i data-feather="calendar"></i>
+                                        <span><?php echo date('F j, Y', strtotime($session['reviewDate'])); ?></span>
+                                    </div>
+                                    <div class="session-detail">
+                                        <i data-feather="clock"></i>
+                                        <span><?php echo date('g:i A', strtotime($session['reviewStartTime'])) . ' - ' . date('g:i A', strtotime($session['reviewEndTime'])); ?></span>
+                                    </div>
+                                    <div class="session-detail">
+                                        <i data-feather="map-pin"></i>
+                                        <span><?php echo htmlspecialchars($session['reviewLocation']); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="session-actions">
+                                <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['id']; ?>" class="btn btn-icon" title="View Details">
+                                    <i data-feather="eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
                         <h3>No upcoming review sessions</h3>
                         <p>Create your first review session to get started</p>
                         <button id="empty-add-btn" class="btn btn-primary">

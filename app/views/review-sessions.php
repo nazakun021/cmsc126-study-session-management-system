@@ -103,34 +103,43 @@ requireLogin();
                 </button>
             </div>
             <div class="modal-body">
-                <form id="add-session-form">
+                <form id="add-session-form" action="/cmsc126-study-session-management-system/app/controllers/StudySessionController.php" method="POST">
                     <div class="form-group">
                         <label for="session-title">Title</label>
-                        <input type="text" id="session-title" required placeholder="e.g., Midterm Review: Data Structures">
+                        <input type="text" id="session-title" name="reviewTitle" required placeholder="e.g., Midterm Review: Data Structures">
                     </div>
                     <div class="form-group">
                         <label for="session-subject">Subject</label>
-                        <input type="text" id="session-subject" required placeholder="e.g., Computer Science">
+                        <select name="subjectID" id="session-subject" required>
+                            <?php
+                            require_once __DIR__ . '/../Models/CourseModel.php';
+                            $courseModel = new \App\Models\CourseModel($pdo);
+                            $subjects = $courseModel->getAllCourses();
+                            foreach ($subjects as $subject) {
+                                echo "<option value='{$subject['id']}'>{$subject['courseName']}</option>";
+                            }
+                            ?>
+                        </select>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="session-date">Date</label>
-                            <input type="date" id="session-date" required>
+                            <input type="date" id="session-date" name="reviewDate" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="session-start-time">Start Time</label>
-                            <input type="time" id="session-start-time" required>
+                            <input type="time" id="session-start-time" name="reviewStartTime" required>
                         </div>
                         <div class="form-group">
                             <label for="session-end-time">End Time</label>
-                            <input type="time" id="session-end-time" required>
+                            <input type="time" id="session-end-time" name="reviewEndTime" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="session-location">Location</label>
-                        <input type="text" id="session-location" required placeholder="e.g., Library Study Room 3">
+                        <input type="text" id="session-location" name="reviewLocation" required placeholder="e.g., Library Study Room 3">
                     </div>
                     <div class="form-actions">
                         <button type="button" id="cancel-add" class="btn btn-secondary">Cancel</button>

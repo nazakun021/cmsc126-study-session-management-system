@@ -13,6 +13,22 @@ class StudySession extends Model {
         $this->pdo = $pdo;
     }
 
+    public function getAllSessions() {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT rs.*, c.courseName
+                FROM {$this->table} rs
+                JOIN courses c ON rs.subjectID = c.id
+                ORDER BY rs.reviewDate ASC, rs.reviewStartTime ASC
+            ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('Error getting all sessions: ' . $e->getMessage());
+            return [];
+        }
+    }
+
     private function validateSessionData($data) {
         $errors = [];
 
