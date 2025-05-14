@@ -15,12 +15,10 @@ const Toast = {
 // Loading state management
 const Loading = {
     show(element) {
-        if (!element) return;
         element.classList.add('loading');
         element.innerHTML = '<div class="spinner"></div>';
     },
     hide(element) {
-        if (!element) return;
         element.classList.remove('loading');
     }
 };

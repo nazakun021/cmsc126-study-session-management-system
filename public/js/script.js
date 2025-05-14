@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show/hide empty state based on sessions
     function updateEmptyState() {
-        if (!emptyState || !sessionsContainer) return;
         const sessions = document.querySelectorAll('.session-card');
         if (sessions.length === 0) {
             emptyState.style.display = 'flex';
@@ -164,34 +163,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners
     
     // Open add session modal
-    if (addSessionBtn) {
-        addSessionBtn.addEventListener('click', () => {
-            if (addSessionModal) addSessionModal.style.display = 'flex';
-        });
-    }
+    addSessionBtn.addEventListener('click', () => {
+        addSessionModal.style.display = 'flex';
+    });
     
     // Open add session modal from empty state
-    if (emptyAddBtn) {
-        emptyAddBtn.addEventListener('click', () => {
-            if (addSessionModal) addSessionModal.style.display = 'flex';
-        });
-    }
+    emptyAddBtn.addEventListener('click', () => {
+        addSessionModal.style.display = 'flex';
+    });
     
     // Close add session modal
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-            if (addSessionModal) addSessionModal.style.display = 'none';
-            if (addSessionForm) addSessionForm.reset();
-        });
-    }
+    closeModalBtn.addEventListener('click', () => {
+        addSessionModal.style.display = 'none';
+        addSessionForm.reset();
+    });
     
     // Cancel add session
-    if (cancelAddBtn) {
-        cancelAddBtn.addEventListener('click', () => {
-            if (addSessionModal) addSessionModal.style.display = 'none';
-            if (addSessionForm) addSessionForm.reset();
-        });
-    }
+    cancelAddBtn.addEventListener('click', () => {
+        addSessionModal.style.display = 'none';
+        addSessionForm.reset();
+    });
     
     // Submit add session form with validation
     addSessionForm.addEventListener('submit', (e) => {

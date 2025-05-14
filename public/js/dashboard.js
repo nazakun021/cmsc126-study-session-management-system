@@ -128,29 +128,21 @@ function handleEditSession(session) {
 function setupEventListeners() {
     // Add session button
     const addSessionBtn = document.getElementById('add-session-btn');
-    if (addSessionBtn) {
-        addSessionBtn.addEventListener('click', () => {
-            const addSessionModal = document.getElementById('add-session-modal');
-            if (addSessionModal) addSessionModal.style.display = 'flex';
-        });
-    }
+    addSessionBtn.addEventListener('click', () => {
+        document.getElementById('add-session-modal').style.display = 'flex';
+    });
 
     // Form submissions
     const addSessionForm = document.getElementById('addSessionForm');
-    if (addSessionForm) {
-        addSessionForm.addEventListener('submit', handleAddSession);
-    }
+    addSessionForm.addEventListener('submit', handleAddSession);
 
     const editSessionForm = document.getElementById('editSessionForm');
-    if (editSessionForm) {
-        editSessionForm.addEventListener('submit', handleUpdateSession);
-    }
+    editSessionForm.addEventListener('submit', handleUpdateSession);
 
     // Modal close buttons
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const modal = btn.closest('.modal');
-            if (modal) modal.style.display = 'none';
+            btn.closest('.modal').style.display = 'none';
         });
     });
 
@@ -162,23 +154,23 @@ function setupEventListeners() {
 
     // Open the Add Session Modal
     const openAddSessionModal = () => {
-        if (addSessionModal) addSessionModal.style.display = 'flex';
+        addSessionModal.style.display = 'flex';
     };
 
-    if (addSessionBtn) addSessionBtn.addEventListener('click', openAddSessionModal);
-    if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddSessionModal);
+    addSessionBtn.addEventListener('click', openAddSessionModal);
+    emptyAddBtn.addEventListener('click', openAddSessionModal);
 
     // Close the Add Session Modal
     const closeAddSessionModal = () => {
-        if (addSessionModal) addSessionModal.style.display = 'none';
+        addSessionModal.style.display = 'none';
     };
 
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeAddSessionModal);
-    if (cancelAddBtn) cancelAddBtn.addEventListener('click', closeAddSessionModal);
+    closeModalBtn.addEventListener('click', closeAddSessionModal);
+    cancelAddBtn.addEventListener('click', closeAddSessionModal);
 
     // Close modal when clicking outside the modal content
     window.addEventListener('click', function (event) {
-        if (addSessionModal && event.target === addSessionModal) {
+        if (event.target === addSessionModal) {
             closeAddSessionModal();
         }
     });

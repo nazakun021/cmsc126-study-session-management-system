@@ -20,14 +20,9 @@ class AuthController extends Controller {
     }
 
     public function showRegister() {
-        $coursesResult = $this->courseModel->getAllCourses();
-        $courses = [];
-        $coursesError = false;
-        if (is_array($coursesResult) && isset($coursesResult['success']) && $coursesResult['success'] && isset($coursesResult['courses'])) {
-            $courses = $coursesResult['courses'];
-        } else {
-            $coursesError = true;
-        }
+        $courses = $this->courseModel->getAllCourses();
+        $coursesError = ($courses === false);
+        
         $this->view('auth/register', [
             'courses' => $courses,
             'coursesError' => $coursesError

@@ -20,15 +20,6 @@
     }
   ?>
 
-  <?php
-    if (!isset($courses) || !is_array($courses)) {
-        $courses = [];
-    }
-    if (!isset($coursesError)) {
-        $coursesError = false;
-    }
-  ?>
-
   <form id="registerForm" action="/cmsc126-study-session-management-system/public/register" method="POST" onsubmit="return validateForm()">
     <input type="hidden" name="action" value="processRegister">
     
@@ -42,15 +33,13 @@
 
     <label for="course">Course</label>
     <select id="course" name="courseID" required 
-    <?php if (!empty($coursesError) || empty($courses) || !is_array($courses)) echo 'disabled'; ?>>
+    <?php if ($coursesError || empty($courses)) echo 'disabled'; ?>>
       <option value="" disabled selected>Select your course</option>
-      <?php if (empty($coursesError) && !empty($courses) && is_array($courses)): ?>
+      <?php if (!$coursesError && !empty($courses)): ?>
         <?php foreach ($courses as $course): ?>
-          <?php if (is_array($course) && isset($course['courseID'], $course['courseName'])): ?>
-            <option value="<?php echo htmlspecialchars((string)$course['courseID']); ?>">
-              <?php echo htmlspecialchars((string)$course['courseName']); ?>
-            </option>
-          <?php endif; ?>
+          <option value="<?php echo htmlspecialchars($course['courseID']); ?>">
+            <?php echo htmlspecialchars($course['courseName']); ?>
+          </option>
         <?php endforeach; ?>
       <?php endif; ?>
     </select>
