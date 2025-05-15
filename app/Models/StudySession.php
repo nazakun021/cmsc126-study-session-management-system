@@ -15,14 +15,11 @@ class StudySession extends Model {
 
     public function getAllSessions() {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT rs.*, c.courseName
-                FROM {$this->table} rs
-                JOIN courses c ON rs.subjectID = c.id
-                ORDER BY rs.reviewDate ASC, rs.reviewStartTime ASC
-            ");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $this->pdo->query("SELECT * FROM {$this->table} ORDER BY reviewDate ASC, reviewStartTime ASC");
+            $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Debug log
+            error_log('getAllSessions result: ' . print_r($sessions, true));
+            return $sessions;
         } catch (PDOException $e) {
             error_log('Error getting all sessions: ' . $e->getMessage());
             return [];

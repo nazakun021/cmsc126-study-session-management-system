@@ -20,6 +20,11 @@ require_once __DIR__ . '/../Models/CourseModel.php';
 $courseModel = new \App\Models\CourseModel($pdo);
 $subjectsResult = $courseModel->getAllSubjects();
 $subjects = $subjectsResult['success'] ? $subjectsResult['subjects'] : [];
+
+$subjectMap = [];
+foreach ($subjects as $subject) {
+    $subjectMap[$subject['subjectID']] = $subject['subjectName'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -131,11 +136,16 @@ $subjects = $subjectsResult['success'] ? $subjectsResult['subjects'] : [];
                         <?php foreach ($sessions as $session): ?>
                         <div class="session-card">
                             <div class="session-content">
-                                <h4 class="session-title"><?php echo htmlspecialchars($session['reviewTitle']); ?></h4>
+                                <h4 class="session-title"><?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?></h4>
                                 <div class="session-details">
                                     <div class="session-detail">
                                         <i data-feather="book"></i>
-                                        <span><?php echo htmlspecialchars($session['courseName']); ?></span>
+                                        <span>
+                                            <?php
+                                            $subjectID = $session['subjectID'] ?? null;
+                                            echo isset($subjectMap[$subjectID]) ? htmlspecialchars($subjectMap[$subjectID]) : 'Unknown Subject';
+                                            ?>
+                                        </span>
                                     </div>
                                     <div class="session-detail">
                                         <i data-feather="calendar"></i>
@@ -147,12 +157,12 @@ $subjects = $subjectsResult['success'] ? $subjectsResult['subjects'] : [];
                                     </div>
                                     <div class="session-detail">
                                         <i data-feather="map-pin"></i>
-                                        <span><?php echo htmlspecialchars($session['reviewLocation']); ?></span>
+                                        <span><?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?></span>
                                     </div>
                                 </div>
                             </div>
                             <div class="session-actions">
-                                <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['id']; ?>" class="btn btn-icon" title="View Details">
+                                <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['reviewSessionID']; ?>" class="btn btn-icon" title="View Details">
                                     <i data-feather="eye"></i>
                                 </a>
                             </div>
