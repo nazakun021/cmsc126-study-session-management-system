@@ -158,6 +158,14 @@ foreach ($subjects as $subject) {
                                                 <i data-feather="map-pin"></i>
                                                 <span><?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?></span>
                                             </div>
+                                            <div class="card-info-item">
+                                                <i data-feather="book-open"></i>
+                                                <span><strong>Topic:</strong> <?php echo htmlspecialchars($session['reviewTopic'] ?? ''); ?></span>
+                                            </div>
+                                            <div class="card-info-item">
+                                                <i data-feather="file-text"></i>
+                                                <span><strong>Description:</strong> <?php echo htmlspecialchars($session['reviewDescription'] ?? ''); ?></span>
+                                            </div>
                                         </div>
                                         <div class="session-actions" style="margin-top: 1rem;">
                                             <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['reviewSessionID']; ?>" class="btn btn-icon" title="View Details">
@@ -293,6 +301,14 @@ foreach ($subjects as $subject) {
                     <div class="card-info-item">
                         <i data-feather="map-pin"></i>
                         <span class="card-location"></span>
+                    </div>
+                    <div class="card-info-item">
+                        <i data-feather="book-open"></i>
+                        <span class="card-topic"></span>
+                    </div>
+                    <div class="card-info-item">
+                        <i data-feather="file-text"></i>
+                        <span class="card-description"></span>
                     </div>
                 </div>
             </div>
