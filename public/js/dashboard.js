@@ -15,6 +15,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add event listeners
     setupEventListeners();
+
+    // Sidebar filter toggle
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterPanel = document.getElementById('sidebar-filter-panel');
+    if (filterToggle && filterPanel) {
+        filterToggle.addEventListener('click', function() {
+            filterPanel.style.display = filterPanel.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+
+    // Filter form logic
+    const filterForm = document.getElementById('sidebar-filter-form');
+    const clearFilterBtn = document.getElementById('clear-filter');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const subject = document.getElementById('filter-subject').value;
+            const date = document.getElementById('filter-date').value;
+            const cards = document.querySelectorAll('.session-card');
+            cards.forEach(card => {
+                let show = true;
+                if (subject && card.innerText.indexOf(subject) === -1) show = false;
+                if (date && card.innerText.indexOf(new Date(date).toLocaleDateString()) === -1) show = false;
+                card.style.display = show ? '' : 'none';
+            });
+        });
+    }
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', function() {
+            document.getElementById('filter-subject').value = '';
+            document.getElementById('filter-date').value = '';
+            const cards = document.querySelectorAll('.session-card');
+            cards.forEach(card => card.style.display = '');
+        });
+    }
 });
 
 async function loadDashboardData() {

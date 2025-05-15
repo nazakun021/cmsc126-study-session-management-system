@@ -30,12 +30,14 @@ ul {
 
 /* Sidebar */
 .sidebar {
-    width: 250px;
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
     background-color: #fff;
     border-right: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease;
+    transition: none !important;
 }
 
 .sidebar-header {
@@ -358,7 +360,7 @@ ul {
     right: 0;
     background-color: #fff;
     border-radius: 0.375rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     min-width: 150px;
     z-index: 10;
     display: none;

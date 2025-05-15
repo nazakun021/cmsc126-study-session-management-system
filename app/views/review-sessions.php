@@ -1,6 +1,21 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 requireLogin();
+require_once __DIR__ . '/../config/db_connection.php';
+$pdo = require __DIR__ . '/../config/db_connection.php';
+require_once __DIR__ . '/../core/Model.php';
+require_once __DIR__ . '/../Models/StudySession.php';
+require_once __DIR__ . '/../Models/CourseModel.php';
+$studySessionModel = new \App\Models\StudySession($pdo);
+$courseModel = new \App\Models\CourseModel($pdo);
+$sessions = $studySessionModel->getAllSessions();
+$subjectsResult = $courseModel->getAllSubjects();
+$subjects = $subjectsResult['success'] ? $subjectsResult['subjects'] : [];
+$subjectMap = [];
+foreach ($subjects as $subject) {
+    $subjectMap[$subject['subjectID']] = $subject['subjectName'];
+}
+$currUserId = $_SESSION['userId'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,18 +51,31 @@ requireLogin();
                         </a>
                     </li>
                     <li>
-                        <a href="/cmsc126-study-session-management-system/app/views/subjects.php">
-                            <i data-feather="book"></i>
-                            <span>Subjects</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/cmsc126-study-session-management-system/app/views/attendance.php">
-                            <i data-feather="users"></i>
-                            <span>Attendance</span>
-                        </a>
+                        <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#64748b;cursor:pointer;display:flex;align-items:center;">
+                            <i data-feather="filter"></i>
+                            <span>Filter Sessions</span>
+                        </button>
                     </li>
                 </ul>
+                <div id="sidebar-filter-panel" style="display:none;padding:1rem 1.5rem 0 1.5rem;">
+                    <form id="sidebar-filter-form">
+                        <div class="form-group">
+                            <label for="filter-subject">Subject</label>
+                            <select id="filter-subject" name="subjectID">
+                                <option value="">All Subjects</option>
+                                <?php foreach ($subjects as $subject): ?>
+                                    <option value="<?php echo htmlspecialchars($subject['subjectID']); ?>"><?php echo htmlspecialchars($subject['subjectName']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-date">Date</label>
+                            <input type="date" id="filter-date" name="reviewDate">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;width:100%;">Apply Filter</button>
+                        <button type="button" id="clear-filter" class="btn btn-secondary" style="margin-top:0.5rem;width:100%;">Clear</button>
+                    </form>
+                </div>
             </nav>
         </aside>
 
@@ -65,28 +93,76 @@ requireLogin();
                         <h3>All Review Sessions</h3>
                     </div>
                     <div class="content-header-right">
+                        <div class="search-bar-container" style="display:none;">
+                            <input type="text" id="session-search" class="search-bar" placeholder="Search sessions...">
+                        </div>
                         <button id="add-session-btn" class="btn btn-primary">
                             <i data-feather="plus"></i> Add Session
                         </button>
                     </div>
                 </div>
 
-                <!-- Empty State -->
-                <div id="empty-state" class="empty-state">
-                    <div class="empty-state-icon">
-                        <i data-feather="calendar"></i>
-                    </div>
-                    <h3>No review sessions found</h3>
-                    <p>Create your first review session to get started</p>
-                    <button id="empty-add-btn" class="btn btn-primary">
-                        <i data-feather="plus"></i> Add Session
-                    </button>
-                </div>
-
-                <!-- Sessions Container (hidden initially) -->
-                <div id="sessions-container" style="display: none;">
+                <div id="sessions-container">
                     <div class="sessions-list" id="sessions-list">
-                        <!-- Sessions will be added here dynamically -->
+                        <?php if (empty($sessions)): ?>
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i data-feather="calendar"></i>
+                                </div>
+                                <h3>No review sessions found</h3>
+                                <p>Create your first review session to get started</p>
+                                <button id="empty-add-btn" class="btn btn-primary">
+                                    <i data-feather="plus"></i> Add Session
+                                </button>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($sessions as $session): ?>
+                                <div class="session-item">
+                                    <div class="session-content">
+                                        <h4 class="session-title"><?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?></h4>
+                                        <div class="session-details">
+                                            <div class="session-detail">
+                                                <i data-feather="book"></i>
+                                                <span class="session-subject"><?php $subjectID = $session['subjectID'] ?? null; echo isset($subjectMap[$subjectID]) ? htmlspecialchars($subjectMap[$subjectID]) : 'Unknown Subject'; ?></span>
+                                            </div>
+                                            <div class="session-detail">
+                                                <i data-feather="calendar"></i>
+                                                <span class="session-date"><?php echo date('F j, Y', strtotime($session['reviewDate'])); ?></span>
+                                            </div>
+                                            <div class="session-detail">
+                                                <i data-feather="clock"></i>
+                                                <span class="session-time"><?php echo date('g:i A', strtotime($session['reviewStartTime'])) . ' - ' . date('g:i A', strtotime($session['reviewEndTime'])); ?></span>
+                                            </div>
+                                            <div class="session-detail">
+                                                <i data-feather="map-pin"></i>
+                                                <span class="session-location"><?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?></span>
+                                            </div>
+                                            <div class="session-detail">
+                                                <i data-feather="book-open"></i>
+                                                <span class="session-topic"><strong>Topic:</strong> <?php echo htmlspecialchars($session['reviewTopic'] ?? ''); ?></span>
+                                            </div>
+                                            <div class="session-detail">
+                                                <i data-feather="file-text"></i>
+                                                <span class="session-description"><strong>Description:</strong> <?php echo htmlspecialchars($session['reviewDescription'] ?? ''); ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="session-actions">
+                                        <button class="btn btn-icon view-session" title="View Details">
+                                            <i data-feather="eye"></i>
+                                        </button>
+                                        <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
+                                            <i data-feather="edit-2"></i>
+                                        </button>
+                                        <?php if ($session['creatorUserID'] == $currUserId): ?>
+                                            <button class="btn btn-icon delete-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Delete">
+                                                <i data-feather="trash-2"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

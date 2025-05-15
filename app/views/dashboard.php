@@ -25,6 +25,8 @@ $subjectMap = [];
 foreach ($subjects as $subject) {
     $subjectMap[$subject['subjectID']] = $subject['subjectName'];
 }
+
+$currUserId = $_SESSION['userId'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,18 +63,31 @@ foreach ($subjects as $subject) {
                         </a>
                     </li>
                     <li>
-                        <a href="/cmsc126-study-session-management-system/app/views/subjects.php">
-                            <i data-feather="book"></i>
-                            <span>Subjects</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/cmsc126-study-session-management-system/app/views/attendance.php">
-                            <i data-feather="users"></i>
-                            <span>Attendance</span>
-                        </a>
+                        <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#64748b;cursor:pointer;display:flex;align-items:center;">
+                            <i data-feather="filter"></i>
+                            <span>Filter Sessions</span>
+                        </button>
                     </li>
                 </ul>
+                <div id="sidebar-filter-panel" style="display:none;padding:1rem 1.5rem 0 1.5rem;">
+                    <form id="sidebar-filter-form">
+                        <div class="form-group">
+                            <label for="filter-subject">Subject</label>
+                            <select id="filter-subject" name="subjectID">
+                                <option value="">All Subjects</option>
+                                <?php foreach ($subjects as $subject): ?>
+                                    <option value="<?php echo htmlspecialchars($subject['subjectID']); ?>"><?php echo htmlspecialchars($subject['subjectName']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-date">Date</label>
+                            <input type="date" id="filter-date" name="reviewDate">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;width:100%;">Apply Filter</button>
+                        <button type="button" id="clear-filter" class="btn btn-secondary" style="margin-top:0.5rem;width:100%;">Clear</button>
+                    </form>
+                </div>
             </nav>
         </aside>
 
@@ -118,11 +133,20 @@ foreach ($subjects as $subject) {
                 <section class="content-section">
                     <div class="section-header">
                         <h3>Upcoming Review Sessions</h3>
+                        <div class="search-bar-container" style="display:none;">
+                            <input type="text" id="session-search" class="search-bar" placeholder="Search sessions...">
+                        </div>
                         <button id="add-session-btn" class="btn btn-primary">
                             <i data-feather="plus"></i> Add Session
                         </button>
                     </div>
-                    <?php if (empty($sessions)): ?>
+                    <?php 
+                    $now = strtotime('today');
+                    $upcomingSessions = array_filter($sessions, function($session) use ($now) {
+                        return strtotime($session['reviewDate']) >= $now;
+                    });
+                    ?>
+                    <?php if (empty($upcomingSessions)): ?>
                         <div id="empty-add-btn" class="empty-state">
                             <div class="empty-state-icon">
                                 <i data-feather="calendar"></i>
@@ -134,8 +158,8 @@ foreach ($subjects as $subject) {
                             </button>
                         </div>
                     <?php else: ?>
-                        <div class="card-grid">
-                            <?php foreach ($sessions as $session): ?>
+                        <div class="card-grid" id="dashboard-session-list">
+                            <?php foreach ($upcomingSessions as $session): ?>
                                 <div class="card session-card">
                                     <div class="card-header">
                                         <h4 class="card-title"><?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?></h4>
@@ -167,10 +191,18 @@ foreach ($subjects as $subject) {
                                                 <span><strong>Description:</strong> <?php echo htmlspecialchars($session['reviewDescription'] ?? ''); ?></span>
                                             </div>
                                         </div>
-                                        <div class="session-actions" style="margin-top: 1rem;">
+                                        <div class="session-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
                                             <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['reviewSessionID']; ?>" class="btn btn-icon" title="View Details">
                                                 <i data-feather="eye"></i>
                                             </a>
+                                            <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
+                                                <i data-feather="edit-2"></i>
+                                            </button>
+                                            <?php if ($session['creatorUserID'] == $currUserId): ?>
+                                                <button class="btn btn-icon delete-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Delete">
+                                                    <i data-feather="trash-2"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>

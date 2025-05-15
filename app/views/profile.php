@@ -55,18 +55,7 @@ if ($user && !empty($user['courseID'])) {
                         <span>Review Sessions</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/cmsc126-study-session-management-system/app/views/subjects.php">
-                        <i data-feather="book"></i>
-                        <span>Subjects</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/cmsc126-study-session-management-system/app/views/attendance.php">
-                        <i data-feather="users"></i>
-                        <span>Attendance</span>
-                    </a>
-                </li>
+                <!-- Remove Subjects and Attendance links from sidebar -->
             </ul>
         </nav>
     </aside>
