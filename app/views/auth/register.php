@@ -20,6 +20,16 @@
     }
   ?>
 
+  <?php
+  if (isset($courses) && isset($courses['success']) && $courses['success'] && isset($courses['courses'])) {
+      $courses = $courses['courses'];
+  } elseif (isset($courses) && is_array($courses) && isset($courses[0]['courseID'])) {
+      // Already a flat array of courses
+  } else {
+      $courses = [];
+  }
+  ?>
+
   <form id="registerForm" action="/cmsc126-study-session-management-system/public/register" method="POST" onsubmit="return validateForm()">
     <input type="hidden" name="action" value="processRegister">
     

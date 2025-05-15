@@ -76,14 +76,14 @@ class StudySession extends Model {
             // Sanitize input data
             $sanitizedData = [
                 ':subjectID' => filter_var($data['subjectID'], FILTER_SANITIZE_NUMBER_INT),
-                ':reviewTitle' => filter_var($data['reviewTitle'], FILTER_SANITIZE_STRING),
+                ':reviewTitle' => strip_tags($data['reviewTitle']),
                 ':reviewDate' => $data['reviewDate'],
                 ':reviewStartTime' => $data['reviewStartTime'],
                 ':reviewEndTime' => $data['reviewEndTime'],
-                ':reviewLocation' => filter_var($data['reviewLocation'], FILTER_SANITIZE_STRING),
-                ':reviewDescription' => filter_var($data['reviewDescription'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewTopic' => filter_var($data['reviewTopic'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewStatus' => filter_var($data['reviewStatus'] ?? 'scheduled', FILTER_SANITIZE_STRING)
+                ':reviewLocation' => strip_tags($data['reviewLocation']),
+                ':reviewDescription' => strip_tags($data['reviewDescription'] ?? ''),
+                ':reviewTopic' => strip_tags($data['reviewTopic'] ?? ''),
+                ':reviewStatus' => strip_tags($data['reviewStatus'] ?? 'scheduled')
             ];
 
             $stmt = $this->pdo->prepare("
@@ -170,14 +170,14 @@ class StudySession extends Model {
             // Sanitize input data
             $sanitizedData = [
                 ':subjectID' => filter_var($data['subjectID'], FILTER_SANITIZE_NUMBER_INT),
-                ':reviewTitle' => filter_var($data['reviewTitle'], FILTER_SANITIZE_STRING),
+                ':reviewTitle' => strip_tags($data['reviewTitle']),
                 ':reviewDate' => $data['reviewDate'],
                 ':reviewStartTime' => $data['reviewStartTime'],
                 ':reviewEndTime' => $data['reviewEndTime'],
-                ':reviewLocation' => filter_var($data['reviewLocation'], FILTER_SANITIZE_STRING),
-                ':reviewDescription' => filter_var($data['reviewDescription'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewTopic' => filter_var($data['reviewTopic'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewStatus' => filter_var($data['reviewStatus'] ?? 'scheduled', FILTER_SANITIZE_STRING),
+                ':reviewLocation' => strip_tags($data['reviewLocation']),
+                ':reviewDescription' => strip_tags($data['reviewDescription'] ?? ''),
+                ':reviewTopic' => strip_tags($data['reviewTopic'] ?? ''),
+                ':reviewStatus' => strip_tags($data['reviewStatus'] ?? 'scheduled'),
                 ':sessionId' => $sessionId
             ];
 

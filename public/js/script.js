@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show/hide empty state based on sessions
     function updateEmptyState() {
         const sessions = document.querySelectorAll('.session-card');
+        if (!emptyState || !sessionsContainer) return;
         if (sessions.length === 0) {
             emptyState.style.display = 'flex';
             sessionsContainer.style.display = 'none';
@@ -71,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Update stats
-        updateStats();
+        if (typeof updateStats === 'function') updateStats();
     }
     
     // Update dashboard stats
@@ -163,73 +164,83 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners
     
     // Open add session modal
-    addSessionBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'flex';
-    });
+    if (addSessionBtn && addSessionModal) {
+        addSessionBtn.addEventListener('click', () => {
+            addSessionModal.style.display = 'flex';
+        });
+    }
     
     // Open add session modal from empty state
-    emptyAddBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'flex';
-    });
+    if (emptyAddBtn && addSessionModal) {
+        emptyAddBtn.addEventListener('click', () => {
+            addSessionModal.style.display = 'flex';
+        });
+    }
     
     // Close add session modal
-    closeModalBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'none';
-        addSessionForm.reset();
-    });
+    if (closeModalBtn && addSessionModal && addSessionForm) {
+        closeModalBtn.addEventListener('click', () => {
+            addSessionModal.style.display = 'none';
+            addSessionForm.reset();
+        });
+    }
     
     // Cancel add session
-    cancelAddBtn.addEventListener('click', () => {
-        addSessionModal.style.display = 'none';
-        addSessionForm.reset();
-    });
+    if (cancelAddBtn && addSessionModal && addSessionForm) {
+        cancelAddBtn.addEventListener('click', () => {
+            addSessionModal.style.display = 'none';
+            addSessionForm.reset();
+        });
+    }
     
     // Submit add session form with validation
-    addSessionForm.addEventListener('submit', (e) => {
-        // Client-side validation
-        let valid = true;
-        let errorMessages = [];
+    if (addSessionForm) {
+        addSessionForm.addEventListener('submit', (e) => {
+            // Client-side validation
+            let valid = true;
+            let errorMessages = [];
 
-        // Get form values
-        const title = document.getElementById('sessionTitle').value.trim();
-        const subject = document.getElementById('sessionSubject').value;
-        const topic = document.getElementById('sessionTopic').value.trim();
-        const date = document.getElementById('sessionDate').value;
-        const startTime = document.getElementById('sessionStartTime').value;
-        const endTime = document.getElementById('sessionEndTime').value;
-        const location = document.getElementById('sessionLocation').value.trim();
-        const description = document.getElementById('sessionDescription').value.trim();
+            // Get form values
+            const title = document.getElementById('sessionTitle').value.trim();
+            const subject = document.getElementById('sessionSubject').value;
+            const topic = document.getElementById('sessionTopic').value.trim();
+            const date = document.getElementById('sessionDate').value;
+            const startTime = document.getElementById('sessionStartTime').value;
+            const endTime = document.getElementById('sessionEndTime').value;
+            const location = document.getElementById('sessionLocation').value.trim();
+            const description = document.getElementById('sessionDescription').value.trim();
 
-        // Simple validation rules
-        if (!title) { valid = false; errorMessages.push('Title is required.'); }
-        if (!subject) { valid = false; errorMessages.push('Subject is required.'); }
-        if (!topic) { valid = false; errorMessages.push('Topic is required.'); }
-        if (!date) { valid = false; errorMessages.push('Date is required.'); }
-        if (!startTime) { valid = false; errorMessages.push('Start time is required.'); }
-        if (!endTime) { valid = false; errorMessages.push('End time is required.'); }
-        if (!location) { valid = false; errorMessages.push('Location is required.'); }
-        // Optionally: check if endTime > startTime
-        if (startTime && endTime && startTime >= endTime) {
-            valid = false;
-            errorMessages.push('End time must be after start time.');
-        }
+            // Simple validation rules
+            if (!title) { valid = false; errorMessages.push('Title is required.'); }
+            if (!subject) { valid = false; errorMessages.push('Subject is required.'); }
+            if (!topic) { valid = false; errorMessages.push('Topic is required.'); }
+            if (!date) { valid = false; errorMessages.push('Date is required.'); }
+            if (!startTime) { valid = false; errorMessages.push('Start time is required.'); }
+            if (!endTime) { valid = false; errorMessages.push('End time is required.'); }
+            if (!location) { valid = false; errorMessages.push('Location is required.'); }
+            // Optionally: check if endTime > startTime
+            if (startTime && endTime && startTime >= endTime) {
+                valid = false;
+                errorMessages.push('End time must be after start time.');
+            }
 
-        // Remove any previous error message
-        let errorDiv = document.getElementById('sessionFormError');
-        if (errorDiv) errorDiv.remove();
+            // Remove any previous error message
+            let errorDiv = document.getElementById('sessionFormError');
+            if (errorDiv) errorDiv.remove();
 
-        if (!valid) {
-            e.preventDefault();
-            // Show error messages above the form
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'sessionFormError';
-            errorDiv.style.color = 'red';
-            errorDiv.style.marginBottom = '10px';
-            errorDiv.innerHTML = errorMessages.join('<br>');
-            addSessionForm.prepend(errorDiv);
-        }
-        // If valid, allow form to submit to server
-    });
+            if (!valid) {
+                e.preventDefault();
+                // Show error messages above the form
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'sessionFormError';
+                errorDiv.style.color = 'red';
+                errorDiv.style.marginBottom = '10px';
+                errorDiv.innerHTML = errorMessages.join('<br>');
+                addSessionForm.prepend(errorDiv);
+            }
+            // If valid, allow form to submit to server
+        });
+    }
     
     // Close delete modal
     closeDeleteModalBtn.addEventListener('click', () => {

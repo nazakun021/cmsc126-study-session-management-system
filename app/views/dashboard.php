@@ -1,10 +1,25 @@
 <?php
+// For Error Checking
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../config/init.php';
 requireLogin();
+
+require_once __DIR__ . '/../config/db_connection.php';
+$pdo = require __DIR__ . '/../config/db_connection.php';
+
+require_once __DIR__ . '/../core/Model.php';
 
 require_once __DIR__ . '/../Models/StudySession.php';
 $studySessionModel = new \App\Models\StudySession($pdo);
 $sessions = $studySessionModel->getAllSessions();
+
+require_once __DIR__ . '/../Models/CourseModel.php';
+$courseModel = new \App\Models\CourseModel($pdo);
+$subjectsResult = $courseModel->getAllSubjects();
+$subjects = $subjectsResult['success'] ? $subjectsResult['subjects'] : [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
