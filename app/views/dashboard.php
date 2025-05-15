@@ -122,65 +122,53 @@ foreach ($subjects as $subject) {
                             <i data-feather="plus"></i> Add Session
                         </button>
                     </div>
-                    
-                    <!-- Sessions List -->
                     <?php if (empty($sessions)): ?>
-                    <div id="empty-add-btn" class="empty-state">
-                        <div class="empty-state-icon">
-                            <i data-feather="calendar"></i>
+                        <div id="empty-add-btn" class="empty-state">
+                            <div class="empty-state-icon">
+                                <i data-feather="calendar"></i>
+                            </div>
+                            <h3>No review sessions</h3>
+                            <p>Create your first review session to get started</p>
+                            <button id="empty-add-btn" class="btn btn-primary">
+                                <i data-feather="plus"></i> Add Session
+                            </button>
                         </div>
-                        <h3>No review sessions are scheduled at this time</h3>
-                    </div>
                     <?php else: ?>
-                    <div class="sessions-list">
-                        <?php foreach ($sessions as $session): ?>
-                        <div class="session-card">
-                            <div class="session-content">
-                                <h4 class="session-title"><?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?></h4>
-                                <div class="session-details">
-                                    <div class="session-detail">
-                                        <i data-feather="book"></i>
-                                        <span>
-                                            <?php
-                                            $subjectID = $session['subjectID'] ?? null;
-                                            echo isset($subjectMap[$subjectID]) ? htmlspecialchars($subjectMap[$subjectID]) : 'Unknown Subject';
-                                            ?>
-                                        </span>
+                        <div class="card-grid">
+                            <?php foreach ($sessions as $session): ?>
+                                <div class="card session-card">
+                                    <div class="card-header">
+                                        <h4 class="card-title"><?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?></h4>
                                     </div>
-                                    <div class="session-detail">
-                                        <i data-feather="calendar"></i>
-                                        <span><?php echo date('F j, Y', strtotime($session['reviewDate'])); ?></span>
-                                    </div>
-                                    <div class="session-detail">
-                                        <i data-feather="clock"></i>
-                                        <span><?php echo date('g:i A', strtotime($session['reviewStartTime'])) . ' - ' . date('g:i A', strtotime($session['reviewEndTime'])); ?></span>
-                                    </div>
-                                    <div class="session-detail">
-                                        <i data-feather="map-pin"></i>
-                                        <span><?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?></span>
+                                    <div class="card-body">
+                                        <div class="card-info">
+                                            <div class="card-info-item">
+                                                <i data-feather="book"></i>
+                                                <span><?php $subjectID = $session['subjectID'] ?? null; echo isset($subjectMap[$subjectID]) ? htmlspecialchars($subjectMap[$subjectID]) : 'Unknown Subject'; ?></span>
+                                            </div>
+                                            <div class="card-info-item">
+                                                <i data-feather="calendar"></i>
+                                                <span><?php echo date('F j, Y', strtotime($session['reviewDate'])); ?></span>
+                                            </div>
+                                            <div class="card-info-item">
+                                                <i data-feather="clock"></i>
+                                                <span><?php echo date('g:i A', strtotime($session['reviewStartTime'])) . ' - ' . date('g:i A', strtotime($session['reviewEndTime'])); ?></span>
+                                            </div>
+                                            <div class="card-info-item">
+                                                <i data-feather="map-pin"></i>
+                                                <span><?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="session-actions" style="margin-top: 1rem;">
+                                            <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['reviewSessionID']; ?>" class="btn btn-icon" title="View Details">
+                                                <i data-feather="eye"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="session-actions">
-                                <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['reviewSessionID']; ?>" class="btn btn-icon" title="View Details">
-                                    <i data-feather="eye"></i>
-                                </a>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
-                        <?php endforeach; ?>
-                    </div>
                     <?php endif; ?>
-                        <h3>No upcoming review sessions</h3>
-                        <p>Create your first review session to get started</p>
-                        <button id="empty-add-btn" class="btn btn-primary">
-                            <i data-feather="plus"></i> Add Session
-                        </button>
-                    </div>
-                    
-                    <!-- Sessions Container (hidden initially) -->
-                    <div id="sessions-container" class="card-grid" style="display: none;">
-                        <!-- Sessions will be added here dynamically -->
-                    </div>
                 </section>
             </div>
         </main>
