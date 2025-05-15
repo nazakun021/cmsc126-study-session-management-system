@@ -112,6 +112,7 @@ ul {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    z-index: 100;
 }
 
 .header h2 {
@@ -128,7 +129,7 @@ ul {
 /* User Dropdown */
 .dropdown {
     position: relative;
-    z-index: 1001;
+    z-index: 100;
 }
 
 .dropdown-toggle {
@@ -187,6 +188,8 @@ ul {
     align-items: center;
     justify-content: center;
     font-weight: 500;
+    position: relative;
+    z-index: 1;
 }
 
 .user-name {
@@ -513,7 +516,7 @@ ul {
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 2000;
 }
 
 .modal-content {

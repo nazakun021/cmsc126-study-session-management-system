@@ -51,9 +51,9 @@ $currUserId = $_SESSION['userId'] ?? null;
                         </a>
                     </li>
                     <li>
-                        <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#64748b;cursor:pointer;display:flex;align-items:center;">
-                            <i data-feather="filter"></i>
-                            <span>Filter Sessions</span>
+                        <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#4f46e5;font-size:1rem;font-weight:500;cursor:pointer;display:flex;align-items:center;">
+                            <i data-feather="filter" style="color:#4f46e5;width:18px;height:18px;margin-right:0.75rem;"></i>
+                            <span style="color:#4f46e5;font-size:1rem;font-weight:500;">Filter Sessions</span>
                         </button>
                     </li>
                 </ul>
@@ -148,9 +148,6 @@ $currUserId = $_SESSION['userId'] ?? null;
                                         </div>
                                     </div>
                                     <div class="session-actions">
-                                        <button class="btn btn-icon view-session" title="View Details">
-                                            <i data-feather="eye"></i>
-                                        </button>
                                         <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
                                             <i data-feather="edit-2"></i>
                                         </button>
@@ -270,9 +267,6 @@ $currUserId = $_SESSION['userId'] ?? null;
                 </div>
             </div>
             <div class="session-actions">
-                <button class="btn btn-icon view-session" title="View Details">
-                    <i data-feather="eye"></i>
-                </button>
                 <button class="btn btn-icon edit-session" title="Edit Session">
                     <i data-feather="edit-2"></i>
                 </button>

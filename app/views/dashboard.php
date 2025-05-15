@@ -63,9 +63,9 @@ $currUserId = $_SESSION['userId'] ?? null;
                         </a>
                     </li>
                     <li>
-                        <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#64748b;cursor:pointer;display:flex;align-items:center;">
-                            <i data-feather="filter"></i>
-                            <span>Filter Sessions</span>
+                        <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#4f46e5;font-size:1rem;font-weight:500;cursor:pointer;display:flex;align-items:center;">
+                            <i data-feather="filter" style="color:#4f46e5;width:18px;height:18px;margin-right:0.75rem;"></i>
+                            <span style="color:#4f46e5;font-size:1rem;font-weight:500;">Filter Sessions</span>
                         </button>
                     </li>
                 </ul>
@@ -123,7 +123,7 @@ $currUserId = $_SESSION['userId'] ?? null;
                                 echo count($upcomingSessions);
                             ?></p>
                         </div>
-                        <div class="stat-card-icon orange">
+                        <div class="stat-card-icon orange" style="background:#ede9fe;color:#4f46e5;">
                             <i data-feather="clock"></i>
                         </div>
                     </div>
