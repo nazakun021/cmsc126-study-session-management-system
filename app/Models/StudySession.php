@@ -69,25 +69,31 @@ class StudySession extends Model {
             if (!empty($errors)) {
                 return [
                     'success' => false,
+                    'message' => 'Validation failed',
                     'errors' => $errors
                 ];
             }
 
             // Sanitize input data
             $sanitizedData = [
+                ':creatorUserID' => filter_var($data['creatorUserID'], FILTER_SANITIZE_NUMBER_INT),
                 ':subjectID' => filter_var($data['subjectID'], FILTER_SANITIZE_NUMBER_INT),
-                ':reviewTitle' => filter_var($data['reviewTitle'], FILTER_SANITIZE_STRING),
+                ':reviewTitle' => strip_tags($data['reviewTitle']),
                 ':reviewDate' => $data['reviewDate'],
                 ':reviewStartTime' => $data['reviewStartTime'],
                 ':reviewEndTime' => $data['reviewEndTime'],
-                ':reviewLocation' => filter_var($data['reviewLocation'], FILTER_SANITIZE_STRING),
-                ':reviewDescription' => filter_var($data['reviewDescription'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewTopic' => filter_var($data['reviewTopic'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewStatus' => filter_var($data['reviewStatus'] ?? 'scheduled', FILTER_SANITIZE_STRING)
+                ':reviewLocation' => strip_tags($data['reviewLocation']),
+                ':reviewDescription' => strip_tags($data['reviewDescription'] ?? ''),
+                ':reviewTopic' => strip_tags($data['reviewTopic'] ?? ''),
+                ':reviewStatus' => strip_tags($data['reviewStatus'] ?? 'scheduled')
             ];
+
+            // Debug log the sanitized data
+            error_log('Attempting to create session with data: ' . print_r($sanitizedData, true));
 
             $stmt = $this->pdo->prepare("
                 INSERT INTO {$this->table} (
+                    creatorUserID,
                     subjectID, 
                     reviewTitle, 
                     reviewDate, 
@@ -98,6 +104,7 @@ class StudySession extends Model {
                     reviewTopic, 
                     reviewStatus
                 ) VALUES (
+                    :creatorUserID,
                     :subjectID,
                     :reviewTitle,
                     :reviewDate,
@@ -111,21 +118,28 @@ class StudySession extends Model {
             ");
 
             if ($stmt->execute($sanitizedData)) {
+                $sessionId = $this->pdo->lastInsertId();
+                error_log('Successfully created session with ID: ' . $sessionId);
                 return [
                     'success' => true,
-                    'sessionId' => $this->pdo->lastInsertId()
+                    'message' => 'Study session created successfully',
+                    'sessionId' => $sessionId
                 ];
             }
 
+            $errorInfo = $stmt->errorInfo();
+            error_log('Failed to create study session. PDO Error: ' . print_r($errorInfo, true));
             return [
                 'success' => false,
-                'error' => 'Failed to create study session.'
+                'message' => 'Failed to create study session',
+                'errors' => ['Database error: ' . $errorInfo[2]]
             ];
         } catch (PDOException $e) {
             error_log("Error creating study session: " . $e->getMessage());
             return [
                 'success' => false,
-                'error' => 'An error occurred while creating the study session.'
+                'message' => 'Database error occurred',
+                'errors' => ['An error occurred while creating the study session: ' . $e->getMessage()]
             ];
         }
     }
@@ -170,14 +184,14 @@ class StudySession extends Model {
             // Sanitize input data
             $sanitizedData = [
                 ':subjectID' => filter_var($data['subjectID'], FILTER_SANITIZE_NUMBER_INT),
-                ':reviewTitle' => filter_var($data['reviewTitle'], FILTER_SANITIZE_STRING),
+                ':reviewTitle' => strip_tags($data['reviewTitle']),
                 ':reviewDate' => $data['reviewDate'],
                 ':reviewStartTime' => $data['reviewStartTime'],
                 ':reviewEndTime' => $data['reviewEndTime'],
-                ':reviewLocation' => filter_var($data['reviewLocation'], FILTER_SANITIZE_STRING),
-                ':reviewDescription' => filter_var($data['reviewDescription'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewTopic' => filter_var($data['reviewTopic'] ?? '', FILTER_SANITIZE_STRING),
-                ':reviewStatus' => filter_var($data['reviewStatus'] ?? 'scheduled', FILTER_SANITIZE_STRING),
+                ':reviewLocation' => strip_tags($data['reviewLocation']),
+                ':reviewDescription' => strip_tags($data['reviewDescription'] ?? ''),
+                ':reviewTopic' => strip_tags($data['reviewTopic'] ?? ''),
+                ':reviewStatus' => strip_tags($data['reviewStatus'] ?? 'scheduled'),
                 ':sessionId' => $sessionId
             ];
 

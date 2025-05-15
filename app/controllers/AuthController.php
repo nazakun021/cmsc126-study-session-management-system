@@ -34,7 +34,7 @@ class AuthController extends Controller {
             session_start();
         }
 
-        $username = trim($_POST['username'] ?? '');
+        $username = strip_tags(trim($_POST['username'] ?? ''));
         $password = $_POST['password'] ?? '';
 
         if (empty($username) || empty($password)) {
@@ -68,11 +68,11 @@ class AuthController extends Controller {
             $this->redirect('/cmsc126-study-session-management-system/public/register');
         }
 
-        $username = trim($_POST['username']);
-        $email = trim($_POST['email']);
+        $username = strip_tags(trim($_POST['username']));
+        $email = strip_tags(trim($_POST['email']));
         $password = $_POST['password'];
         $confirmPassword = $_POST['confirmPassword'];
-        $courseId = trim($_POST['courseID']);
+        $courseId = filter_var(trim($_POST['courseID']), FILTER_SANITIZE_NUMBER_INT);
 
         $result = $this->userModel->register($username, $email, $password, $confirmPassword, $courseId);
         

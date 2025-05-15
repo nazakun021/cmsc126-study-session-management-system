@@ -201,16 +201,27 @@ async function handleAddSession(e) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         formData.append('csrf_token', csrfToken);
 
+        // Log form data for debugging
+        console.log('Submitting form data:', Object.fromEntries(formData));
+
+        const dateInput = e.target.querySelector('[name="reviewDate"]');
+        if (dateInput) {
+            // Convert DD/MM/YYYY to YYYY-MM-DD if needed
+            let value = dateInput.value;
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                // If format is DD/MM/YYYY, convert to YYYY-MM-DD
+                const [day, month, year] = value.split('/');
+                dateInput.value = `${year}-${month}-${day}`;
+            }
+        }
+
         const response = await fetch('/cmsc126-study-session-management-system/public/create-session', {
             method: 'POST',
             body: formData
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to create session');
-        }
-
         const result = await response.json();
+        console.log('Server response:', result);
         
         if (result.success) {
             Toast.show('Session created successfully', 'success');
@@ -218,11 +229,17 @@ async function handleAddSession(e) {
             e.target.reset();
             loadDashboardData(); // Reload the dashboard data
         } else {
-            throw new Error(result.message || 'Failed to create session');
+            // Handle validation errors
+            if (result.errors && result.errors.length > 0) {
+                const errorMessage = result.errors.join('\n');
+                Toast.show(errorMessage, 'error');
+            } else {
+                Toast.show(result.message || 'Failed to create session', 'error');
+            }
         }
     } catch (error) {
         console.error('Error creating session:', error);
-        Toast.show(error.message || 'Failed to create session', 'error');
+        Toast.show('An unexpected error occurred. Please try again.', 'error');
     }
 }
 

@@ -23,7 +23,7 @@ class User extends Model {
             }
 
             // Sanitize username
-            $username = filter_var($username, FILTER_SANITIZE_STRING);
+            $username = strip_tags($username);
 
             $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE userName = ?");
             $stmt->execute([$username]);
@@ -91,7 +91,7 @@ class User extends Model {
             }
 
             // Sanitize inputs
-            $username = filter_var($username, FILTER_SANITIZE_STRING);
+            $username = strip_tags($username);
             $email = filter_var($email, FILTER_SANITIZE_EMAIL);
             $courseId = filter_var($courseId, FILTER_SANITIZE_NUMBER_INT);
 

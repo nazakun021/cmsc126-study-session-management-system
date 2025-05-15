@@ -26,24 +26,48 @@ class StudySessionController extends Controller {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Content-Type: application/json');
+            
+            // Validate required fields
+            $requiredFields = ['subjectID', 'reviewTitle', 'reviewDate', 'reviewStartTime', 'reviewEndTime', 'reviewLocation'];
+            $missingFields = [];
+            
+            foreach ($requiredFields as $field) {
+                if (empty($_POST[$field])) {
+                    $missingFields[] = $field;
+                }
+            }
+            
+            if (!empty($missingFields)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Missing required fields',
+                    'errors' => ['The following fields are required: ' . implode(', ', $missingFields)]
+                ]);
+                exit;
+            }
+
+            // Log the incoming data for debugging
+            error_log('Received POST data for session creation: ' . print_r($_POST, true));
+
             $data = [
+                'creatorUserID' => $_SESSION['userId'],
                 'subjectID' => $_POST['subjectID'],
                 'reviewTitle' => $_POST['reviewTitle'],
                 'reviewDate' => $_POST['reviewDate'],
                 'reviewStartTime' => $_POST['reviewStartTime'],
                 'reviewEndTime' => $_POST['reviewEndTime'],
                 'reviewLocation' => $_POST['reviewLocation'],
-                'reviewDescription' => $_POST['reviewDescription'],
-                'reviewTopic' => $_POST['reviewTopic'],
+                'reviewDescription' => $_POST['reviewDescription'] ?? '',
+                'reviewTopic' => $_POST['reviewTopic'] ?? '',
                 'reviewStatus' => 'scheduled'
             ];
 
             $result = $this->studySessionModel->createSession($data);
-            if ($result['success']) {
-                echo json_encode(['success' => true, 'message' => 'Study session created successfully!', 'sessionId' => $result['sessionId']]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to create study session.', 'errors' => $result['errors'] ?? []]);
-            }
+            
+            // Log the result for debugging
+            error_log('Session creation result: ' . print_r($result, true));
+            
+            echo json_encode($result);
             exit;
         }
     }
