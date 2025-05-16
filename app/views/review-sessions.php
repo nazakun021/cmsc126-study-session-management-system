@@ -133,22 +133,22 @@ $currUserId = $_SESSION['userId'] ?? null;
                                         <div class="session-details">
                                             <div class="session-detail">
                                                 <i data-feather="book"></i>
-                                                <span class="session-subject"><?php $subjectID = $session['subjectID'] ?? null; echo isset($subjectMap[$subjectID]) ? htmlspecialchars($subjectMap[$subjectID]) : 'Unknown Subject'; ?></span>
+                                                <span class="session-subject"><?php echo htmlspecialchars($subjectMap[$session['subjectID']] ?? 'Unknown Subject'); ?></span>
                                             </div>
                                             <div class="session-detail">
                                                 <i data-feather="calendar"></i>
-                                                <span class="session-date"><?php echo date('F j, Y', strtotime($session['reviewDate'])); ?></span>
+                                                <span class="session-date"><?php echo htmlspecialchars(date('F j, Y', strtotime($session['reviewDate']))); ?></span>
                                             </div>
                                             <div class="session-detail">
                                                 <i data-feather="clock"></i>
-                                                <span class="session-time"><?php echo date('g:i A', strtotime($session['reviewStartTime'])) . ' - ' . date('g:i A', strtotime($session['reviewEndTime'])); ?></span>
+                                                <span class="session-time"><?php echo htmlspecialchars(date('g:i A', strtotime($session['reviewStartTime']))) . ' - ' . htmlspecialchars(date('g:i A', strtotime($session['reviewEndTime']))); ?></span>
                                             </div>
                                             <div class="session-detail">
                                                 <i data-feather="map-pin"></i>
                                                 <span class="session-location"><?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?></span>
                                             </div>
                                             <div class="session-detail">
-                                                <i data-feather="book-open"></i>
+                                                <i data-feather="align-left"></i>
                                                 <span class="session-topic"><strong>Topic:</strong> <?php echo htmlspecialchars($session['reviewTopic'] ?? ''); ?></span>
                                             </div>
                                             <div class="session-detail">
@@ -186,23 +186,29 @@ $currUserId = $_SESSION['userId'] ?? null;
                 </button>
             </div>
             <div class="modal-body">
-                <form id="add-session-form" action="/cmsc126-study-session-management-system/app/controllers/StudySessionController.php" method="POST">
+                <form action="/cmsc126-study-session-management-system/public/create-session" id="add-session-form" method="POST">
+                    <input type="hidden" name="action" value="create-session">
                     <div class="form-group">
                         <label for="session-title">Title</label>
                         <input type="text" id="session-title" name="reviewTitle" required placeholder="e.g., Midterm Review: Data Structures">
                     </div>
                     <div class="form-group">
                         <label for="session-subject">Subject</label>
-                        <select name="subjectID" id="session-subject" required>
-                            <?php
-                            require_once __DIR__ . '/../Models/CourseModel.php';
-                            $courseModel = new \App\Models\CourseModel($pdo);
-                            $subjects = $courseModel->getAllCourses();
-                            foreach ($subjects as $subject) {
-                                echo "<option value='{$subject['id']}'>{$subject['courseName']}</option>";
-                            }
-                            ?>
+                        <select id="session-subject" name="subjectID" required>
+                            <option value="">Select a subject</option>
+                            <?php 
+                            // $courseModel is instantiated at the top of the file
+                            // $subjects is also available from the top of the file
+                            foreach ($subjects as $subjectModal): ?>
+                                <option value="<?php echo htmlspecialchars($subjectModal['subjectID']); ?>">
+                                    <?php echo htmlspecialchars($subjectModal['subjectName']); ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="session-topic">Topic</label>
+                        <input type="text" id="session-topic" name="reviewTopic" required placeholder="e.g., Binary Trees and Graphs">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -223,6 +229,10 @@ $currUserId = $_SESSION['userId'] ?? null;
                     <div class="form-group">
                         <label for="session-location">Location</label>
                         <input type="text" id="session-location" name="reviewLocation" required placeholder="e.g., Library Study Room 3">
+                    </div>
+                    <div class="form-group">
+                        <label for="session-description">Description</label>
+                        <textarea id="session-description" name="reviewDescription" rows="3" placeholder="Describe what will be covered in this session"></textarea>
                     </div>
                     <div class="form-actions">
                         <button type="button" id="cancel-add" class="btn btn-secondary">Cancel</button>

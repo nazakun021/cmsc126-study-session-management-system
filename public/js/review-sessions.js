@@ -120,38 +120,77 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Submit add session form
-    addSessionForm.addEventListener('submit', (e) => {
+    addSessionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Get form values
-        const title = document.getElementById('session-title').value;
-        const subject = document.getElementById('session-subject').value;
-        const date = document.getElementById('session-date').value;
-        const startTime = document.getElementById('session-start-time').value;
-        const endTime = document.getElementById('session-end-time').value;
-        const location = document.getElementById('session-location').value;
-        
-        // Create new session object
-        const newSession = {
-            id: generateId(),
-            title,
-            subject,
-            date,
-            startTime: formatTime(startTime),
-            endTime: formatTime(endTime),
-            location,
-            status: 'scheduled'
-        };
-        
-        // Add to sessions array
-        sessions.push(newSession);
-        
-        // Render sessions
-        renderSessions();
-        
-        // Close modal and reset form
-        addSessionModal.style.display = 'none';
-        addSessionForm.reset();
+        try {
+            const formData = new FormData(e.target);
+            
+            // Add CSRF token if available (assuming it's stored in a meta tag)
+            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfTokenMeta) {
+                formData.append('csrf_token', csrfTokenMeta.content);
+            }
+
+            // Log form data for debugging
+            console.log('Submitting form data from review-sessions.js:', Object.fromEntries(formData));
+
+            const dateInput = e.target.querySelector('[name="reviewDate"]');
+            if (dateInput) {
+                // Convert DD/MM/YYYY to YYYY-MM-DD if needed for backend consistency
+                let value = dateInput.value;
+                if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                    const [day, month, year] = value.split('/');
+                    dateInput.value = `${year}-${month}-${day}`;
+                    formData.set('reviewDate', `${year}-${month}-${day}`); // Update formData as well
+                } else if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                    // Ensure the formData has the correct YYYY-MM-DD format if already in that format
+                    formData.set('reviewDate', value);
+                }
+            }
+
+            const response = await fetch('/cmsc126-study-session-management-system/public/create-session', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            console.log('Server response from review-sessions.js:', result);
+            
+            if (result.success) {
+                // Assuming Toast is globally available or loaded via utils.js
+                if (typeof Toast !== 'undefined') {
+                    Toast.show('Session created successfully', 'success');
+                } else {
+                    alert('Session created successfully'); // Fallback
+                }
+                addSessionModal.style.display = 'none';
+                addSessionForm.reset();
+                // Reload sessions or update UI dynamically
+                // For simplicity, we'll reload the page. A more sophisticated approach would be to fetch and render just the new session.
+                window.location.reload(); 
+            } else {
+                let errorMessage = 'Failed to create session.';
+                if (result.message) {
+                    errorMessage = result.message;
+                }
+                if (result.errors && result.errors.length > 0) {
+                    errorMessage = result.errors.join('\n');
+                }
+                if (typeof Toast !== 'undefined') {
+                    Toast.show(errorMessage, 'error');
+                } else {
+                    alert(errorMessage); // Fallback
+                }
+            }
+        } catch (error) {
+            console.error('Error creating session from review-sessions.js:', error);
+            if (typeof Toast !== 'undefined') {
+                Toast.show('An unexpected error occurred. Please try again.', 'error');
+            } else {
+                alert('An unexpected error occurred. Please try again.'); // Fallback
+            }
+        }
     });
     
     // Close delete modal
