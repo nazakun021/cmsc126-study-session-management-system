@@ -36,8 +36,9 @@ class CourseModel extends Model {
     public function getAllSubjects() {
         try {
             $stmt = $this->pdo->query("
-                SELECT subjectID, subjectName 
+                SELECT MIN(subjectID) as subjectID, subjectName 
                 FROM Subjects 
+                GROUP BY subjectName 
                 ORDER BY subjectName ASC
             ");
             
@@ -90,12 +91,13 @@ class CourseModel extends Model {
     public function getSubjectsByUserId($userId) {
         try {
             $stmt = $this->pdo->prepare("
-                SELECT DISTINCT s.* 
+                SELECT MIN(s.subjectID) as subjectID, s.subjectName 
                 FROM subjects s
                 INNER JOIN course_subjects cs ON s.subjectID = cs.subjectID
                 INNER JOIN user_courses uc ON cs.courseID = uc.courseID
                 WHERE uc.userID = ?
-                ORDER BY s.subjectName
+                GROUP BY s.subjectName
+                ORDER BY s.subjectName ASC
             ");
             
             $stmt->execute([$userId]);
