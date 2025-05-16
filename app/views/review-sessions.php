@@ -8,7 +8,17 @@ require_once __DIR__ . '/../Models/StudySession.php';
 require_once __DIR__ . '/../Models/CourseModel.php';
 $studySessionModel = new \App\Models\StudySession($pdo);
 $courseModel = new \App\Models\CourseModel($pdo);
-$sessions = $studySessionModel->getAllSessions();
+
+// Filter logic
+$filterSubject = $_GET['subjectID'] ?? '';
+$filterDate = $_GET['reviewDate'] ?? '';
+
+if ($filterSubject || $filterDate) {
+    $sessions = $studySessionModel->getFilteredSessions($filterSubject, $filterDate);
+} else {
+    $sessions = $studySessionModel->getAllSessions();
+}
+
 $subjectsResult = $courseModel->getAllSubjects();
 $subjects = $subjectsResult['success'] ? $subjectsResult['subjects'] : [];
 $subjectMap = [];
@@ -58,22 +68,22 @@ $currUserId = $_SESSION['userId'] ?? null;
                     </li>
                 </ul>
                 <div id="sidebar-filter-panel" style="display:none;padding:1rem 1.5rem 0 1.5rem;">
-                    <form id="sidebar-filter-form">
+                    <form id="sidebar-filter-form" method="GET" action="review-sessions.php">
                         <div class="form-group">
                             <label for="filter-subject">Subject</label>
                             <select id="filter-subject" name="subjectID">
                                 <option value="">All Subjects</option>
                                 <?php foreach ($subjects as $subject): ?>
-                                    <option value="<?php echo htmlspecialchars($subject['subjectID']); ?>"><?php echo htmlspecialchars($subject['subjectName']); ?></option>
+                                    <option value="<?php echo htmlspecialchars($subject['subjectID']); ?>" <?php if ($filterSubject == $subject['subjectID']) echo 'selected'; ?>><?php echo htmlspecialchars($subject['subjectName']); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="filter-date">Date</label>
-                            <input type="date" id="filter-date" name="reviewDate">
+                            <input type="date" id="filter-date" name="reviewDate" value="<?php echo htmlspecialchars($filterDate); ?>">
                         </div>
                         <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;width:100%;">Apply Filter</button>
-                        <button type="button" id="clear-filter" class="btn btn-secondary" style="margin-top:0.5rem;width:100%;">Clear</button>
+                        <a href="review-sessions.php" id="clear-filter" class="btn btn-secondary" style="margin-top:0.5rem;width:100%;text-align:center;">Clear</a>
                     </form>
                 </div>
             </nav>

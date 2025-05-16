@@ -64,6 +64,10 @@ class AuthController extends Controller {
             session_start();
         }
 
+        // Clear previous session messages
+        unset($_SESSION['error']);
+        unset($_SESSION['success']);
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->redirect('/cmsc126-study-session-management-system/public/register');
         }

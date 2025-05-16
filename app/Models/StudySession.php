@@ -283,5 +283,30 @@ class StudySession extends Model {
             ];
         }
     }
+
+    /**
+     * Get sessions filtered by subject and/or date
+     */
+    public function getFilteredSessions($subjectID = '', $reviewDate = '') {
+        try {
+            $query = "SELECT * FROM {$this->table} WHERE 1=1";
+            $params = [];
+            if (!empty($subjectID)) {
+                $query .= " AND subjectID = :subjectID";
+                $params[':subjectID'] = $subjectID;
+            }
+            if (!empty($reviewDate)) {
+                $query .= " AND reviewDate = :reviewDate";
+                $params[':reviewDate'] = $reviewDate;
+            }
+            $query .= " ORDER BY reviewDate ASC, reviewStartTime ASC";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log('Error getting filtered sessions: ' . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

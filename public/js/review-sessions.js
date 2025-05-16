@@ -222,30 +222,21 @@ document.addEventListener('DOMContentLoaded', function() {
             filterPanel.style.display = filterPanel.style.display === 'none' ? 'block' : 'none';
         });
     }
-    // Filter form logic
+    // Filter form logic (let the form submit to backend)
+    // Remove JS filtering and let PHP handle it
+    // Optionally, auto-show filter panel if filters are active
     const filterForm = document.getElementById('sidebar-filter-form');
     const clearFilterBtn = document.getElementById('clear-filter');
     if (filterForm) {
-        filterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const subject = document.getElementById('filter-subject').value;
-            const date = document.getElementById('filter-date').value;
-            const items = document.querySelectorAll('.session-item');
-            items.forEach(item => {
-                let show = true;
-                if (subject && item.innerText.indexOf(subject) === -1) show = false;
-                if (date && item.innerText.indexOf(new Date(date).toLocaleDateString()) === -1) show = false;
-                item.style.display = show ? '' : 'none';
-            });
-        });
+        // No JS submit handler needed
     }
     if (clearFilterBtn) {
-        clearFilterBtn.addEventListener('click', function() {
-            document.getElementById('filter-subject').value = '';
-            document.getElementById('filter-date').value = '';
-            const items = document.querySelectorAll('.session-item');
-            items.forEach(item => item.style.display = '');
-        });
+        // No JS clear handler needed; use <a> link in PHP
+    }
+    // Auto-show filter panel if filters are active
+    const urlParams = new URLSearchParams(window.location.search);
+    if ((urlParams.get('subjectID') && urlParams.get('subjectID') !== '') || (urlParams.get('reviewDate') && urlParams.get('reviewDate') !== '')) {
+        if (filterPanel) filterPanel.style.display = 'block';
     }
     
     // Initialize the page
