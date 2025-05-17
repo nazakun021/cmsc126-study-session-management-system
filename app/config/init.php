@@ -4,6 +4,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Generate and store CSRF token if one doesn't exist or on certain conditions
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Check if user is logged in
 function isLoggedIn() {
     return isset($_SESSION['userId']) && isset($_SESSION['username']);
@@ -23,4 +28,4 @@ function getCurrentUser() {
         'userId' => $_SESSION['userId'] ?? null,
         'username' => $_SESSION['username'] ?? null
     ];
-} 
+}
