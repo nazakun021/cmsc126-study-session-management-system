@@ -32,6 +32,7 @@ $currUserId = $_SESSION['userId'] ?? null;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo isset($_SESSION['csrf_token']) ? htmlspecialchars($_SESSION['csrf_token']) : ''; ?>">
     <title>Review Sessions | Review Dashboard</title>
     <link rel="stylesheet" href="/cmsc126-study-session-management-system/public/css/styles.css">
     <script src="https://unpkg.com/feather-icons"></script>
@@ -127,7 +128,16 @@ $currUserId = $_SESSION['userId'] ?? null;
                             </div>
                         <?php else: ?>
                             <?php foreach ($sessions as $session): ?>
-                                <div class="session-item">
+                                <div class="session-item"
+                                    data-session-id="<?php echo htmlspecialchars($session['reviewSessionID']); ?>"
+                                    data-title="<?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?>"
+                                    data-subject-id="<?php echo htmlspecialchars($session['subjectID'] ?? ''); ?>"
+                                    data-topic="<?php echo htmlspecialchars($session['reviewTopic'] ?? ''); ?>"
+                                    data-date="<?php echo htmlspecialchars($session['reviewDate'] ?? ''); // Expected YYYY-MM-DD ?>"
+                                    data-start-time="<?php echo htmlspecialchars($session['reviewStartTime'] ?? ''); // Expected HH:MM ?>"
+                                    data-end-time="<?php echo htmlspecialchars($session['reviewEndTime'] ?? ''); // Expected HH:MM ?>"
+                                    data-location="<?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?>"
+                                    data-description="<?php echo htmlspecialchars($session['reviewDescription'] ?? ''); ?>">
                                     <div class="session-content">
                                         <h4 class="session-title"><?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?></h4>
                                         <div class="session-details">
@@ -158,9 +168,11 @@ $currUserId = $_SESSION['userId'] ?? null;
                                         </div>
                                     </div>
                                     <div class="session-actions">
-                                        <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
+                                        <?php /* ?>
+                                        <button class="btn btn-icon edit-session" title="Edit">
                                             <i data-feather="edit-2"></i>
                                         </button>
+                                        <?php */ ?>
                                         <?php if ($session['creatorUserID'] == $currUserId): ?>
                                             <button class="btn btn-icon delete-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Delete">
                                                 <i data-feather="trash-2"></i>
@@ -237,6 +249,71 @@ $currUserId = $_SESSION['userId'] ?? null;
                     <div class="form-actions">
                         <button type="button" id="cancel-add" class="btn btn-secondary">Cancel</button>
                         <button type="submit" class="btn btn-primary">Create Session</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Session Modal -->
+    <div id="edit-session-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Review Session</h3>
+                <button id="close-edit-modal" class="close-btn"> <!-- Specific ID for clarity, or use common class -->
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-session-form" method="POST"> <!-- Action will be set by JS or be /public/update-session -->
+                    <input type="hidden" name="reviewSessionID" id="edit-session-id">
+                    <input type="hidden" name="action" value="update-session">
+                    <div class="form-group">
+                        <label for="edit-session-title">Title</label>
+                        <input type="text" id="edit-session-title" name="reviewTitle" required placeholder="e.g., Midterm Review: Data Structures">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-session-subject">Subject</label>
+                        <select id="edit-session-subject" name="subjectID" required>
+                            <option value="">Select a subject</option>
+                            <?php foreach ($subjects as $subjectModal): ?>
+                                <option value="<?php echo htmlspecialchars($subjectModal['subjectID']); ?>">
+                                    <?php echo htmlspecialchars($subjectModal['subjectName']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-session-topic">Topic</label>
+                        <input type="text" id="edit-session-topic" name="reviewTopic" required placeholder="e.g., Binary Trees and Graphs">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-session-date">Date</label>
+                            <input type="date" id="edit-session-date" name="reviewDate" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-session-start-time">Start Time</label>
+                            <input type="time" id="edit-session-start-time" name="reviewStartTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-session-end-time">End Time</label>
+                            <input type="time" id="edit-session-end-time" name="reviewEndTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-session-location">Location</label>
+                        <input type="text" id="edit-session-location" name="reviewLocation" required placeholder="e.g., Library Study Room 3">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-session-description">Description</label>
+                        <textarea id="edit-session-description" name="reviewDescription" rows="3" placeholder="Describe what will be covered in this session"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="cancel-edit-session" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Session</button>
                     </div>
                 </form>
             </div>

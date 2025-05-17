@@ -38,6 +38,7 @@ if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/public/a
 }
 
 session_start();
+require_once '../app/config/init.php'; // Ensure CSRF token and other initializations are done early
 
 // Include Configuration and Controllers
 require_once '../app/config/db_connection.php';
@@ -70,14 +71,18 @@ $base = dirname($_SERVER['SCRIPT_NAME']); // usually /cmsc126-study-session-mana
 $action = trim(str_replace($base, '', $path), '/');
 if ($action === '') $action = 'login';
 
-// Handle form Submissions (POST requests)
+// Revised dispatch logic:
+$dispatch_target_action = $action; // Default to URL-based action
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
-        $router->dispatch($_POST['action']);
+    if (isset($_POST['action']) && !empty($_POST['action'])) {
+        // Allow $_POST['action'] to override for specific form submissions (e.g., login, register)
+        $dispatch_target_action = $_POST['action'];
     }
-} else {
-    // Handle GET requests for displaying forms or other actions
-    // Dispatch the Request    
+    // Always dispatch for POST requests, using URL-based action if $_POST['action'] is not set/empty
+    $router->dispatch($dispatch_target_action);
+} else { // For GET requests
+    // Use the URL-based action
     $router->dispatch($action);
 }
 ?>

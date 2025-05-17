@@ -72,40 +72,145 @@ class StudySessionController extends Controller {
         }
     }
 
-    public function updateSession($sessionId) {
+    public function updateSession() { // Removed $sessionId parameter
         if (session_status() === PHP_SESSION_NONE) session_start();
+        header('Content-Type: application/json');
+        $response = ['success' => false, 'message' => 'An unknown error occurred.'];
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $response['message'] = 'Invalid request method.';
+                echo json_encode($response);
+                exit;
+            }
+
+            // DEBUGGING CSRF
+            error_log("UPDATE - SESSION CSRF Token: " . ($_SESSION['csrf_token'] ?? 'NOT SET'));
+            error_log("UPDATE - POST CSRF Token: " . ($_POST['csrf_token'] ?? 'NOT SET'));
+
+            if (empty($_POST['csrf_token']) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+                $response['message'] = 'Invalid or missing CSRF token.';
+                $response['debug_session_csrf'] = $_SESSION['csrf_token'] ?? 'Session token not set';
+                $response['debug_post_csrf'] = $_POST['csrf_token'] ?? 'POST token not set';
+                echo json_encode($response);
+                exit;
+            }
+
+            $requiredFields = [
+                'reviewSessionID', 'reviewTitle', 'subjectID', 'reviewTopic',
+                'reviewDate', 'reviewStartTime', 'reviewEndTime', 'reviewLocation'
+            ];
+            $missingFields = [];
+            foreach ($requiredFields as $field) {
+                if (empty($_POST[$field])) {
+                    $missingFields[] = $field;
+                }
+            }
+
+            if (!empty($missingFields)) {
+                $response['message'] = 'Missing required fields: ' . implode(', ', $missingFields);
+                echo json_encode($response);
+                exit;
+            }
+
+            $sessionId = trim($_POST['reviewSessionID']);
+            
+            // Permission check: Ensure user owns the session
+            // This requires the StudySessionModel to have a method like getSessionById() or getCreatorId()
+            // $sessionDetails = $this->studySessionModel->getSessionById($sessionId); // Assuming this method exists
+            // if (!$sessionDetails || !isset($sessionDetails['creatorUserID']) || $sessionDetails['creatorUserID'] != $_SESSION['userId']) {
+            //     $response['message'] = 'You are not authorized to update this session or session not found.';
+            //     echo json_encode($response);
+            //     exit;
+            // }
+
             $data = [
-                'subjectID' => $_POST['subjectID'],
-                'reviewTitle' => $_POST['reviewTitle'],
-                'reviewDate' => $_POST['reviewDate'],
-                'reviewStartTime' => $_POST['reviewStartTime'],
-                'reviewEndTime' => $_POST['reviewEndTime'],
-                'reviewLocation' => $_POST['reviewLocation'],
-                'reviewDescription' => $_POST['reviewDescription'],
-                'reviewTopic' => $_POST['reviewTopic'],
-                'reviewStatus' => $_POST['reviewStatus'] ?? 'scheduled'
+                'reviewTitle' => trim($_POST['reviewTitle']),
+                'subjectID' => trim($_POST['subjectID']),
+                'reviewTopic' => trim($_POST['reviewTopic']),
+                'reviewDate' => trim($_POST['reviewDate']),
+                'reviewStartTime' => trim($_POST['reviewStartTime']),
+                'reviewEndTime' => trim($_POST['reviewEndTime']),
+                'reviewLocation' => trim($_POST['reviewLocation']),
+                'reviewDescription' => isset($_POST['reviewDescription']) ? trim($_POST['reviewDescription']) : '',
+                // 'reviewStatus' => $_POST['reviewStatus'] ?? 'scheduled' // Status might not be directly updatable by user this way
             ];
 
+            // Ensure creatorUserID is not part of the $data array for update, it should not be changed.
+            // The permission check above should handle authorization.
+
             if ($this->studySessionModel->updateSession($sessionId, $data)) {
-                $_SESSION['success'] = "Study session updated successfully!";
+                $response = ['success' => true, 'message' => 'Study session updated successfully!'];
             } else {
-                $_SESSION['error'] = "Failed to update study session.";
+                $response['message'] = 'Failed to update study session in the database.';
             }
-            $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
+        } catch (\PDOException $e) {
+            error_log("Database error in updateSession: " . $e->getMessage());
+            $response['message'] = "Database error: " . $e->getMessage(); // Consider a more generic message for production
+        } catch (\Exception $e) {
+            error_log("General error in updateSession: " . $e->getMessage());
+            $response['message'] = "An error occurred: " . $e->getMessage(); // Consider a more generic message for production
         }
+        
+        echo json_encode($response);
+        exit;
     }
 
-    public function deleteSession($sessionId) {
+    public function deleteSession() { // Removed $sessionId parameter
         if (session_status() === PHP_SESSION_NONE) session_start();
+        header('Content-Type: application/json');
+        $response = ['success' => false, 'message' => 'An unknown error occurred.'];
 
-        if ($this->studySessionModel->deleteSession($sessionId)) {
-            $_SESSION['success'] = "Study session deleted successfully!";
-        } else {
-            $_SESSION['error'] = "Failed to delete study session.";
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                $response['message'] = 'Invalid request method.';
+                echo json_encode($response);
+                exit;
+            }
+
+            // DEBUGGING CSRF
+            error_log("DELETE - SESSION CSRF Token: " . ($_SESSION['csrf_token'] ?? 'NOT SET'));
+            error_log("DELETE - POST CSRF Token: " . ($_POST['csrf_token'] ?? 'NOT SET'));
+
+            if (empty($_POST['csrf_token']) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+                $response['message'] = 'Invalid or missing CSRF token.';
+                $response['debug_session_csrf'] = $_SESSION['csrf_token'] ?? 'Session token not set';
+                $response['debug_post_csrf'] = $_POST['csrf_token'] ?? 'POST token not set';
+                echo json_encode($response);
+                exit;
+            }
+
+            if (empty($_POST['reviewSessionID'])) {
+                $response['message'] = 'Missing reviewSessionID.';
+                echo json_encode($response);
+                exit;
+            }
+            
+            $sessionId = trim($_POST['reviewSessionID']);
+
+            // Permission check: Ensure user owns the session
+            // $sessionDetails = $this->studySessionModel->getSessionById($sessionId); // Assuming this method exists
+            // if (!$sessionDetails || !isset($sessionDetails['creatorUserID']) || $sessionDetails['creatorUserID'] != $_SESSION['userId']) {
+            //     $response['message'] = 'You are not authorized to delete this session or session not found.';
+            //     echo json_encode($response);
+            //     exit;
+            // }
+
+            if ($this->studySessionModel->deleteSession($sessionId)) {
+                $response = ['success' => true, 'message' => 'Study session deleted successfully!'];
+            } else {
+                $response['message'] = 'Failed to delete study session from the database.';
+            }
+        } catch (\PDOException $e) {
+            error_log("Database error in deleteSession: " . $e->getMessage());
+            $response['message'] = "Database error: " . $e->getMessage(); // Consider a more generic message for production
+        } catch (\Exception $e) {
+            error_log("General error in deleteSession: " . $e->getMessage());
+            $response['message'] = "An error occurred: " . $e->getMessage(); // Consider a more generic message for production
         }
-        $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
+
+        echo json_encode($response);
+        exit;
     }
 }
-?> 
+?>

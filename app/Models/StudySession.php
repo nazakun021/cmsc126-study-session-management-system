@@ -172,6 +172,7 @@ class StudySession extends Model {
             if (!empty($errors)) {
                 return [
                     'success' => false,
+                    'message' => 'Validation failed', // Added message for consistency
                     'errors' => $errors
                 ];
             }
@@ -204,25 +205,47 @@ class StudySession extends Model {
                     reviewDescription = :reviewDescription,
                     reviewTopic = :reviewTopic,
                     reviewStatus = :reviewStatus
-                WHERE id = :sessionId
-            ");
+                WHERE reviewSessionID = :sessionId
+            "); // Changed 'id' to 'reviewSessionID'
 
             if ($stmt->execute($sanitizedData)) {
-                return [
-                    'success' => true,
-                    'message' => 'Study session updated successfully.'
-                ];
+                if ($stmt->rowCount() > 0) {
+                    return [
+                        'success' => true,
+                        'message' => 'Study session updated successfully.'
+                    ];
+                } else {
+                    // Check if session exists to differentiate no change vs not found
+                    // Assuming $this->pdo is available and $this->table is correct
+                    $checkStmt = $this->pdo->prepare("SELECT COUNT(*) FROM {$this->table} WHERE reviewSessionID = :sessionId");
+                    $checkStmt->execute([':sessionId' => $sessionId]); // Use the un-prefixed $sessionId
+                    if ($checkStmt->fetchColumn() > 0) {
+                         return [
+                            'success' => true, // Still success, but no rows affected
+                            'message' => 'No changes detected for the study session.'
+                        ];
+                    } else {
+                        return [
+                            'success' => false,
+                            'message' => 'Study session not found.'
+                        ];
+                    }
+                }
             }
 
+            $errorInfo = $stmt->errorInfo(); // Get error info if execute failed
+            error_log("Failed to update study session (execute failed). PDO Error: " . print_r($errorInfo, true));
             return [
                 'success' => false,
-                'error' => 'Failed to update study session.'
+                'message' => 'Failed to update study session.', // Generic message for execute failure
+                'error_detail' => $errorInfo[2] ?? 'Unknown database error' // Provide detail
             ];
         } catch (PDOException $e) {
             error_log("Error updating study session: " . $e->getMessage());
             return [
                 'success' => false,
-                'error' => 'An error occurred while updating the study session.'
+                'message' => 'An error occurred while updating the study session.', // Generic message for exception
+                'error_detail' => $e->getMessage() // Provide detail
             ];
         }
     }
@@ -231,24 +254,36 @@ class StudySession extends Model {
         try {
             $sessionId = filter_var($sessionId, FILTER_SANITIZE_NUMBER_INT);
             
-            $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE id = :sessionId");
+            // Corrected to use reviewSessionID
+            $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE reviewSessionID = :sessionId"); 
             
             if ($stmt->execute([':sessionId' => $sessionId])) {
-                return [
-                    'success' => true,
-                    'message' => 'Study session deleted successfully.'
-                ];
+                if ($stmt->rowCount() > 0) {
+                    return [
+                        'success' => true,
+                        'message' => 'Study session deleted successfully.'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Session not found or already deleted.' // More specific message
+                    ];
+                }
             }
 
+            $errorInfo = $stmt->errorInfo();
+            error_log("Failed to delete study session. PDO Error: " . print_r($errorInfo, true));
             return [
                 'success' => false,
-                'error' => 'Failed to delete study session.'
+                'message' => 'Failed to delete study session.', // Kept original message for this path
+                'error' => 'Database error: ' . ($errorInfo[2] ?? 'Unknown error')
             ];
         } catch (PDOException $e) {
             error_log("Error deleting study session: " . $e->getMessage());
             return [
                 'success' => false,
-                'error' => 'An error occurred while deleting the study session.'
+                'message' => 'An error occurred while deleting the study session.', // Kept original message
+                'error' => $e->getMessage()
             ];
         }
     }
