@@ -165,6 +165,10 @@ $currUserId = $_SESSION['userId'] ?? null;
                                                 <i data-feather="file-text"></i>
                                                 <span class="session-description"><strong>Description:</strong> <?php echo htmlspecialchars($session['reviewDescription'] ?? ''); ?></span>
                                             </div>
+                                            <div class="session-detail">
+                                                <i data-feather="user"></i>
+                                                <span>Created by: <?php echo isset($session['username']) ? htmlspecialchars($session['username']) : 'N/A'; ?></span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="session-actions">

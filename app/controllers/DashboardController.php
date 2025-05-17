@@ -27,8 +27,7 @@ class DashboardController extends Controller {
         $subjects = $this->courseModel->getSubjectsByUserId($userId);
         
         // Get upcoming sessions
-        $sessionsResult = $this->studySessionModel->getUpcomingSessions();
-        $sessions = $sessionsResult['success'] ? $sessionsResult['sessions'] : [];
+        $sessions = $this->studySessionModel->getUpcomingSessions();
         
         // Generate CSRF token
         $csrfToken = $this->generateCsrfToken();

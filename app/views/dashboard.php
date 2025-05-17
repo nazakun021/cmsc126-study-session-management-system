@@ -192,6 +192,10 @@ $currUserId = $_SESSION['userId'] ?? null;
                                     <div class="card-body">
                                         <div class="card-info">
                                             <div class="card-info-item">
+                                                <i data-feather="user"></i>
+                                                <span>Created by: <?php echo isset($session['username']) ? htmlspecialchars($session['username']) : 'N/A'; ?></span>
+                                            </div>
+                                            <div class="card-info-item">
                                                 <i data-feather="book"></i>
                                                 <span><?php $subjectID = $session['subjectID'] ?? null; echo isset($subjectMap[$subjectID]) ? htmlspecialchars($subjectMap[$subjectID]) : 'Unknown Subject'; ?></span>
                                             </div>

@@ -15,13 +15,15 @@ class StudySession extends Model {
 
     public function getAllSessions() {
         try {
-            $stmt = $this->pdo->query("SELECT * FROM {$this->table} ORDER BY reviewDate ASC, reviewStartTime ASC");
+            $stmt = $this->pdo->query("
+                SELECT rs.*, u.username
+                FROM {$this->table} rs
+                LEFT JOIN user u ON rs.creatorUserID = u.userID
+                ORDER BY rs.reviewDate ASC, rs.reviewStartTime ASC
+            ");
             $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            // Debug log
-            error_log('getAllSessions result: ' . print_r($sessions, true));
             return $sessions;
         } catch (PDOException $e) {
-            error_log('Error getting all sessions: ' . $e->getMessage());
             return [];
         }
     }
@@ -288,70 +290,50 @@ class StudySession extends Model {
         }
     }
 
-    public function getUpcomingSessions() {
+    public function getUpcomingSessions($limit = 3) {
         try {
-            $userId = $_SESSION['userId'];
-            
             $stmt = $this->pdo->prepare("
-                SELECT rs.*, s.subjectName 
+                SELECT rs.*, u.username 
                 FROM {$this->table} rs
-                INNER JOIN subjects s ON rs.subjectID = s.subjectID
-                INNER JOIN course_subjects cs ON s.subjectID = cs.subjectID
-                INNER JOIN user_courses uc ON cs.courseID = uc.courseID
-                WHERE uc.userID = :userId 
-                AND rs.reviewDate >= CURDATE()
+                LEFT JOIN user u ON rs.creatorUserID = u.userID
+                WHERE rs.reviewDate >= CURDATE()
                 ORDER BY rs.reviewDate ASC, rs.reviewStartTime ASC
+                LIMIT :limit
             ");
-            
-            $stmt->execute([':userId' => $userId]);
+            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
             $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            return [
-                'success' => true,
-                'sessions' => $sessions
-            ];
+            return $sessions;
         } catch (PDOException $e) {
-            error_log("Error fetching upcoming sessions: " . $e->getMessage());
-            return [
-                'success' => false,
-                'error' => 'Failed to fetch upcoming sessions.'
-            ];
+            return [];
         }
     }
 
     /**
      * Get sessions filtered by subject and/or date
      */
-    public function getFilteredSessions($subjectID = '', $reviewDate = '') {
+    public function getFilteredSessions($subjectID = null, $reviewDate = null) {
         try {
-            $debug_caller_array = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-            $debug_caller = isset($debug_caller_array[1]['file']) ? basename($debug_caller_array[1]['file']) : 'unknown_caller';
-            error_log("[{$debug_caller}] getFilteredSessions CALLED - subjectID: '{$subjectID}', reviewDate: '{$reviewDate}'");
-
-            $query = "SELECT * FROM {$this->table} WHERE 1=1";
+            $sql = "SELECT rs.*, u.username FROM {$this->table} rs LEFT JOIN user u ON rs.creatorUserID = u.userID WHERE 1=1";
             $params = [];
-            if (!empty($subjectID)) {
-                $query .= " AND subjectID = :subjectID";
+
+            if ($subjectID) {
+                $sql .= " AND rs.subjectID = :subjectID";
                 $params[':subjectID'] = $subjectID;
             }
-            if (!empty($reviewDate)) {
-                $query .= " AND reviewDate = :reviewDate";
+
+            if ($reviewDate) {
+                $sql .= " AND rs.reviewDate = :reviewDate";
                 $params[':reviewDate'] = $reviewDate;
             }
-            $query .= " ORDER BY reviewDate ASC, reviewStartTime ASC";
 
-            error_log("[{$debug_caller}] getFilteredSessions SQL: {$query}");
-            error_log("[{$debug_caller}] getFilteredSessions PARAMS: " . print_r($params, true));
+            $sql .= " ORDER BY rs.reviewDate ASC, rs.reviewStartTime ASC";
 
-            $stmt = $this->pdo->prepare($query);
+            $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            error_log("[{$debug_caller}] getFilteredSessions RESULT COUNT: " . count($result));
-            return $result;
+            $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $sessions;
         } catch (PDOException $e) {
-            $debug_caller_array = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-            $debug_caller = isset($debug_caller_array[1]['file']) ? basename($debug_caller_array[1]['file']) : 'unknown_caller';
-            error_log("[{$debug_caller}] getFilteredSessions ERROR: " . $e->getMessage());
             return [];
         }
     }
