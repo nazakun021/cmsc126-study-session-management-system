@@ -79,7 +79,6 @@
 <body>
     <?php 
     // Moved page title definition before including the header
-    $pageTitle = 'Admin Dashboard'; 
 
     // Ensure CSRF token is set, if not, generate one.
     // This was moved up slightly to be grouped with other PHP logic before the header include,
@@ -88,8 +87,6 @@
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     $csrfToken = $_SESSION['csrf_token'];
-
-    include __DIR__ . '/includes/header.php'; 
     ?>
     <?php
     // Removed CSRF token generation from here as it's moved above
