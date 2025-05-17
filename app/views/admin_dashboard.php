@@ -86,7 +86,7 @@
     $csrfToken = $_SESSION['csrf_token'];
     ?>
 
-    <div class="container">
+    <div class="app-container"> <!-- Changed class from container to app-container -->
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -99,6 +99,12 @@
                         <a href="/cmsc126-study-session-management-system/public/admin">
                             <i data-feather="settings"></i>
                             <span>Admin Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/cmsc126-study-session-management-system/public/logout">
+                            <i data-feather="log-out"></i>
+                            <span>Logout</span>
                         </a>
                     </li>
                 </ul>
@@ -207,6 +213,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            feather.replace(); // Initialize Feather icons
             const csrfToken = <?php echo json_encode($csrfToken); ?>;
 
             // Delete User
