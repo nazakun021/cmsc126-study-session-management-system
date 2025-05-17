@@ -77,20 +77,32 @@
     </style>
 </head>
 <body>
-    <?php include __DIR__ . '/includes/header.php'; ?>
-    <?php
+    <?php 
+    // Moved page title definition before including the header
+    $pageTitle = 'Admin Dashboard'; 
+
     // Ensure CSRF token is set, if not, generate one.
+    // This was moved up slightly to be grouped with other PHP logic before the header include,
+    // though its exact position relative to $pageTitle doesn't strictly matter as long as both are before the header.
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     $csrfToken = $_SESSION['csrf_token'];
+
+    include __DIR__ . '/includes/header.php'; 
+    ?>
+    <?php
+    // Removed CSRF token generation from here as it's moved above
     ?>
 
-    <div class="app-container"> <!-- Changed class from container to app-container -->
+    <div class="app-container"> 
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1 class="app-title">ReviewApp</h1>
+                <button id="menu-toggle" class="menu-toggle"> <!-- Added menu toggle button -->
+                    <i data-feather="menu"></i>
+                </button>
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -114,7 +126,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <?php 
-            $pageTitle = 'ReviewApp Admin Dashboard'; // Changed page title
+            // Removed $pageTitle definition from here as it's moved above
             // Removed redundant include of header.php from here
             // include __DIR__ . '/includes/header.php'; 
             ?>
@@ -216,6 +228,18 @@
             feather.replace(); // Initialize Feather icons
             const csrfToken = <?php echo json_encode($csrfToken); ?>;
 
+            // Sidebar Menu Toggle Functionality
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+
+            if (menuToggle && sidebar && mainContent) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('expanded');
+                });
+            }
+
             // Delete User
             document.querySelectorAll('.delete-user-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -260,7 +284,7 @@
                         .then(response => response.json())
                         .then(data => { // Corrected: added parentheses around data
                             if (data.success) {
-                                alert(data.message);
+                                alert(data.message); // Added alert for successful session deletion
                                 location.reload(); 
                             } else {
                                 alert('Error: ' + (data.message || 'Could not delete session.'));
