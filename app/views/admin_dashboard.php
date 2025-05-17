@@ -132,7 +132,12 @@
                 <div class="content-header">
                     <h3>Manage Users</h3>
                 </div>
-                <?php if (!empty($data['users'])): ?>
+                <?php if (!empty($data['users'])):
+                    // Sort users by userName alphabetically
+                    usort($data['users'], function($a, $b) {
+                        return strcmp(strtolower($a['userName']), strtolower($b['userName']));
+                    });
+                ?>
                     <div class="table-responsive">
                         <table class="admin-table">
                             <thead>
