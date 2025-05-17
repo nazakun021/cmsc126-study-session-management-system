@@ -13,26 +13,26 @@ $pdo = require __DIR__ . '/../config/db_connection.php';
 require_once __DIR__ . '/../core/Model.php';
 
 require_once __DIR__ . '/../Models/StudySession.php';
-$studySessionModel = new \App\Models\StudySession($pdo); // Corrected: removed extra backslash if present from previous attempts, ensuring it's correct now.
+$studySessionModel = new \App\Models\StudySession($pdo);
 
-// Get filter values from GET request
-$filterSubjectID = $_GET['subjectID'] ?? ''; // Use empty string as default
-$filterDate = $_GET['reviewDate'] ?? '';    // Use empty string as default
+// Get filter values from GET request - COMMENTED OUT
+// $filterSubjectID = $_GET['subjectID'] ?? ''; 
+// $filterDate = $_GET['reviewDate'] ?? '';    
 
-// Fetch sessions based on active filters
-if (!empty($filterSubjectID) || !empty($filterDate)) { // Check if any filter is set
-    $sessions = $studySessionModel->getFilteredSessions($filterSubjectID, $filterDate); // Pass as separate arguments
-    if ($sessions === false) {
-        error_log("Error fetching filtered sessions for dashboard. Subject: " . htmlspecialchars($filterSubjectID) . ", Date: " . htmlspecialchars($filterDate));
-        $sessions = [];
-    }
-} else {
+// Fetch sessions based on active filters - MODIFIED TO ALWAYS GET ALL SESSIONS
+// if (!empty($filterSubjectID) || !empty($filterDate)) { 
+//     $sessions = $studySessionModel->getFilteredSessions($filterSubjectID, $filterDate); 
+//     if ($sessions === false) {
+//         error_log("Error fetching filtered sessions for dashboard. Subject: " . htmlspecialchars($filterSubjectID) . ", Date: " . htmlspecialchars($filterDate));
+//         $sessions = [];
+//     }
+// } else {
     $sessions = $studySessionModel->getAllSessions();
     if ($sessions === false) {
         error_log("Error fetching all sessions for dashboard.");
         $sessions = [];
     }
-}
+// }
 // Ensure $sessions is always an array to prevent errors in loops/counts later
 $sessions = is_array($sessions) ? $sessions : [];
 
@@ -83,12 +83,17 @@ $currUserId = $_SESSION['userId'] ?? null;
                         </a>
                     </li>
                     <li>
+                        <!-- Filter Sessions button - COMMENTED OUT -->
+                        <?php /*
                         <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#4f46e5;font-size:1rem;font-weight:500;cursor:pointer;display:flex;align-items:center;">
                             <i data-feather="filter" style="color:#4f46e5;width:18px;height:18px;margin-right:0.75rem;"></i>
                             <span style="color:#4f46e5;font-size:1rem;font-weight:500;">Filter Sessions</span>
                         </button>
+                        */ ?>
                     </li>
                 </ul>
+                <!-- Sidebar Filter Panel - COMMENTED OUT -->
+                <?php /*
                 <div id="sidebar-filter-panel" style="display:none;padding:1rem 1.5rem 0 1.5rem;">
                     <form id="sidebar-filter-form" method="GET" action="dashboard.php">
                         <div class="form-group">
@@ -108,6 +113,7 @@ $currUserId = $_SESSION['userId'] ?? null;
                         <a href="dashboard.php" id="clear-filter" class="btn btn-secondary" style="margin-top:0.5rem;width:100%;text-align:center;display:inline-block;box-sizing:border-box;">Clear</a>
                     </form>
                 </div>
+                */ ?>
             </nav>
         </aside>
 
@@ -136,11 +142,16 @@ $currUserId = $_SESSION['userId'] ?? null;
                         <div class="stat-card-content">
                             <h3 class="stat-card-title">Upcoming Sessions</h3>
                             <p class="stat-card-value" id="upcoming-sessions"><?php
-                                $upcomingSessions = array_filter($sessions, function($session) {
-                                    $sessionDate = strtotime($session['reviewDate']);
-                                    return $sessionDate >= strtotime('today');
+                                $now_for_stats = strtotime('today'); // Define $now for this scope
+                                $upcomingSessions_stat = array_filter($sessions, function($session) use ($now_for_stats) {
+                                    if (!isset($session['reviewDate']) || empty($session['reviewDate'])) {
+                                        return false; // Skip sessions with no or empty reviewDate
+                                    }
+                                    $sessionTimestamp = strtotime($session['reviewDate']);
+                                    // Ensure strtotime didn't fail and the date is today or in the future
+                                    return $sessionTimestamp !== false && $sessionTimestamp >= $now_for_stats;
                                 });
-                                echo count($upcomingSessions);
+                                echo count($upcomingSessions_stat);
                             ?></p>
                         </div>
                         <div class="stat-card-icon orange" style="background:#ede9fe;color:#4f46e5;">
@@ -160,26 +171,20 @@ $currUserId = $_SESSION['userId'] ?? null;
                             <i data-feather="plus"></i> Add Session
                         </button>
                     </div>
-                    <?php 
-                    $now = strtotime('today');
-                    $upcomingSessions = array_filter($sessions, function($session) use ($now) {
-                        return strtotime($session['reviewDate']) >= $now;
-                    });
-                    ?>
-                    <?php if (empty($upcomingSessions)): ?>
+                    <?php if (empty($sessions)): ?>
                         <div id="empty-add-btn" class="empty-state">
                             <div class="empty-state-icon">
                                 <i data-feather="calendar"></i>
                             </div>
                             <h3>No review sessions</h3>
-                            <p>Create your first review session to get started</p>
+                            <p>Create your first review session to get started, or adjust your filters.</p>
                             <button id="empty-add-btn" class="btn btn-primary">
                                 <i data-feather="plus"></i> Add Session
                             </button>
                         </div>
                     <?php else: ?>
                         <div class="card-grid" id="dashboard-session-list">
-                            <?php foreach ($upcomingSessions as $session): ?>
+                            <?php foreach ($sessions as $session): ?>
                                 <div class="card session-card">
                                     <div class="card-header">
                                         <h4 class="card-title"><?php echo htmlspecialchars($session['reviewTitle'] ?? ''); ?></h4>
@@ -192,33 +197,33 @@ $currUserId = $_SESSION['userId'] ?? null;
                                             </div>
                                             <div class="card-info-item">
                                                 <i data-feather="calendar"></i>
-                                                <span><?php echo date('F j, Y', strtotime($session['reviewDate'])); ?></span>
+                                                <span><?php echo isset($session['reviewDate']) && !empty($session['reviewDate']) ? date('F j, Y', strtotime($session['reviewDate'])) : 'N/A'; ?></span>
                                             </div>
                                             <div class="card-info-item">
                                                 <i data-feather="clock"></i>
-                                                <span><?php echo date('g:i A', strtotime($session['reviewStartTime'])) . ' - ' . date('g:i A', strtotime($session['reviewEndTime'])); ?></span>
+                                                <span><?php echo (isset($session['reviewStartTime']) && !empty($session['reviewStartTime']) ? date('g:i A', strtotime($session['reviewStartTime'])) : 'N/A') . ' - ' . (isset($session['reviewEndTime']) && !empty($session['reviewEndTime']) ? date('g:i A', strtotime($session['reviewEndTime'])) : 'N/A'); ?></span>
                                             </div>
                                             <div class="card-info-item">
                                                 <i data-feather="map-pin"></i>
-                                                <span><?php echo htmlspecialchars($session['reviewLocation'] ?? ''); ?></span>
+                                                <span><?php echo htmlspecialchars($session['reviewLocation'] ?? 'N/A'); ?></span>
                                             </div>
                                             <div class="card-info-item">
                                                 <i data-feather="book-open"></i>
-                                                <span><strong>Topic:</strong> <?php echo htmlspecialchars($session['reviewTopic'] ?? ''); ?></span>
+                                                <span><strong>Topic:</strong> <?php echo htmlspecialchars($session['reviewTopic'] ?? 'N/A'); ?></span>
                                             </div>
                                             <div class="card-info-item">
                                                 <i data-feather="file-text"></i>
-                                                <span><strong>Description:</strong> <?php echo htmlspecialchars($session['reviewDescription'] ?? ''); ?></span>
+                                                <span><strong>Description:</strong> <?php echo htmlspecialchars($session['reviewDescription'] ?? 'N/A'); ?></span>
                                             </div>
                                         </div>
                                         <div class="session-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
                                             <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['reviewSessionID']; ?>" class="btn btn-icon" title="View Details">
                                                 <i data-feather="eye"></i>
                                             </a>
-                                            <!-- <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
-                                                <i data-feather="edit-2"></i>
-                                            </button> -->
                                             <?php /* if ($session['creatorUserID'] == $currUserId): ?>
+                                                <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
+                                                    <i data-feather="edit-2"></i>
+                                                </button>
                                                 <button class="btn btn-icon delete-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Delete">
                                                     <i data-feather="trash-2"></i>
                                                 </button>

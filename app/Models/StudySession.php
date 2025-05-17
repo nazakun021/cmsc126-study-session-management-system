@@ -324,6 +324,10 @@ class StudySession extends Model {
      */
     public function getFilteredSessions($subjectID = '', $reviewDate = '') {
         try {
+            $debug_caller_array = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $debug_caller = isset($debug_caller_array[1]['file']) ? basename($debug_caller_array[1]['file']) : 'unknown_caller';
+            error_log("[{$debug_caller}] getFilteredSessions CALLED - subjectID: '{$subjectID}', reviewDate: '{$reviewDate}'");
+
             $query = "SELECT * FROM {$this->table} WHERE 1=1";
             $params = [];
             if (!empty($subjectID)) {
@@ -335,11 +339,19 @@ class StudySession extends Model {
                 $params[':reviewDate'] = $reviewDate;
             }
             $query .= " ORDER BY reviewDate ASC, reviewStartTime ASC";
+
+            error_log("[{$debug_caller}] getFilteredSessions SQL: {$query}");
+            error_log("[{$debug_caller}] getFilteredSessions PARAMS: " . print_r($params, true));
+
             $stmt = $this->pdo->prepare($query);
             $stmt->execute($params);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            error_log("[{$debug_caller}] getFilteredSessions RESULT COUNT: " . count($result));
+            return $result;
         } catch (PDOException $e) {
-            error_log('Error getting filtered sessions: ' . $e->getMessage());
+            $debug_caller_array = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $debug_caller = isset($debug_caller_array[1]['file']) ? basename($debug_caller_array[1]['file']) : 'unknown_caller';
+            error_log("[{$debug_caller}] getFilteredSessions ERROR: " . $e->getMessage());
             return [];
         }
     }
