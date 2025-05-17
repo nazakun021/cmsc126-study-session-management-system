@@ -147,17 +147,18 @@ CREATE TABLE `user` (
   `userName` varchar(50) NOT NULL,
   `email` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `courseID` int(11) NOT NULL
+  `courseID` int(11) NOT NULL,
+  `role` enum('user','admin') NOT NULL DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`userID`, `userName`, `email`, `password`, `courseID`) VALUES
-(1, 'Nazakun', 'benedictnaza@gmail.com', '$2y$10$MgeubSQB3bpM3NvnZv2n6.gfuTsfM1VGrz6YCRgMw/GhHBwyFWC/6', 1),
-(2, 'NazakunML', 'benedictnazaml@gmail.com', '$2y$10$XTy.Bxi2oGBIM0JPmwuwaOe/o.sjHIGQy4MIKt37yOFd1mJ30fRky', 1),
-(3, 'Sailor Moon', 'sailormoon@gmail.com', '$2y$10$oRFhHWbicpj4onAvE19YO./w.qf5JvEyPkVeCx53maReY2lGP7JW6', 1);
+INSERT INTO `user` (`userID`, `userName`, `email`, `password`, `courseID`, `role`) VALUES
+(1, 'Nazakun', 'benedictnaza@gmail.com', '$2y$10$MgeubSQB3bpM3NvnZv2n6.gfuTsfM1VGrz6YCRgMw/GhHBwyFWC/6', 1, 'user'),
+(2, 'NazakunML', 'benedictnazaml@gmail.com', '$2y$10$XTy.Bxi2oGBIM0JPmwuwaOe/o.sjHIGQy4MIKt37yOFd1mJ30fRky', 1, 'user'),
+(3, 'Sailor Moon', 'sailormoon@gmail.com', '$2y$10$oRFhHWbicpj4onAvE19YO./w.qf5JvEyPkVeCx53maReY2lGP7JW6', 1, 'user'),
 
 --
 -- Indexes for dumped tables
@@ -233,7 +234,7 @@ ALTER TABLE `subjects`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `userID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

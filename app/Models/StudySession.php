@@ -167,6 +167,19 @@ class StudySession extends Model {
         }
     }
 
+    public function getSessionById($sessionId) {
+        try {
+            $sessionId = filter_var($sessionId, FILTER_SANITIZE_NUMBER_INT);
+            $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE reviewSessionID = :sessionId");
+            $stmt->execute([':sessionId' => $sessionId]);
+            $session = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $session ? $session : null;
+        } catch (PDOException $e) {
+            error_log("Error fetching session by ID: " . $e->getMessage());
+            return null;
+        }
+    }
+
     public function updateSession($sessionId, $data) {
         try {
             // Validate input data

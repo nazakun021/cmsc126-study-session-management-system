@@ -59,7 +59,7 @@ class User extends Model {
         }
     }
 
-    public function register($username, $email, $password, $confirmPassword, $courseId) {
+    public function register($username, $email, $password, $confirmPassword, $courseId, $role = 'user') {
         try {
             // Input validation
             if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
@@ -94,6 +94,7 @@ class User extends Model {
             $username = strip_tags($username);
             $email = filter_var($email, FILTER_SANITIZE_EMAIL);
             $courseId = filter_var($courseId, FILTER_SANITIZE_NUMBER_INT);
+            $role = strip_tags($role);
 
             // Check for existing user
             $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM {$this->table} WHERE userName = :username OR email = :email");
@@ -109,21 +110,17 @@ class User extends Model {
             // Hash password with strong algorithm
             $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
             
-            $data = [
-                'userName' => $username,
-                'email' => $email,
-                'password' => $hashedPassword,
-                'courseID' => $courseId
-            ];
+            // Insert new user
+            $stmt = $this->pdo->prepare("INSERT INTO {$this->table} (userName, email, password, courseID, role) VALUES (:username, :email, :password, :courseID, :role)");
+            $stmt->execute([
+                ':username' => $username,
+                ':email' => $email,
+                ':password' => $hashedPassword,
+                ':courseID' => $courseId,
+                ':role' => $role
+            ]);
 
-            if ($this->create($data)) {
-                return ['success' => true];
-            }
-
-            return [
-                'success' => false,
-                'error' => 'Registration failed due to a system error.'
-            ];
+            return ['success' => true];
         } catch (PDOException $e) {
             error_log("Registration error: " . $e->getMessage());
             return [
@@ -143,6 +140,39 @@ class User extends Model {
         } catch (PDOException $e) {
             error_log("Error fetching user by ID: " . $e->getMessage());
             return null;
+        }
+    }
+
+    public function deleteUser($userID) {
+        try {
+            $userID = filter_var($userID, FILTER_SANITIZE_NUMBER_INT);
+
+            // Optional: Check if the user exists before attempting to delete
+            $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM {$this->table} WHERE userID = :userID");
+            $stmt->execute([':userID' => $userID]);
+            if ($stmt->fetchColumn() == 0) {
+                return [
+                    'success' => false,
+                    'error' => 'User not found.'
+                ];
+            }
+
+            $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE userID = :userID");
+            if ($stmt->execute([':userID' => $userID])) {
+                return ['success' => true];
+            } else {
+                $errorInfo = $stmt->errorInfo();
+                return [
+                    'success' => false,
+                    'error' => 'Failed to delete user: ' . ($errorInfo[2] ?? 'Unknown database error')
+                ];
+            }
+        } catch (PDOException $e) {
+            error_log("Error deleting user: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'An error occurred while deleting the user.'
+            ];
         }
     }
 }

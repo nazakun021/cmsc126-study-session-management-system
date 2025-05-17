@@ -115,14 +115,16 @@ class StudySessionController extends Controller {
 
             $sessionId = trim($_POST['reviewSessionID']);
             
-            // Permission check: Ensure user owns the session
-            // This requires the StudySessionModel to have a method like getSessionById() or getCreatorId()
-            // $sessionDetails = $this->studySessionModel->getSessionById($sessionId); // Assuming this method exists
-            // if (!$sessionDetails || !isset($sessionDetails['creatorUserID']) || $sessionDetails['creatorUserID'] != $_SESSION['userId']) {
-            //     $response['message'] = 'You are not authorized to update this session or session not found.';
-            //     echo json_encode($response);
-            //     exit;
-            // }
+            // Permission check
+            $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
+            if (!$isAdmin) {
+                $sessionDetails = $this->studySessionModel->getSessionById($sessionId); 
+                if (!$sessionDetails || !isset($sessionDetails['creatorUserID']) || $sessionDetails['creatorUserID'] != $_SESSION['userId']) {
+                    $response['message'] = 'You are not authorized to update this session or session not found.';
+                    echo json_encode($response);
+                    exit;
+                }
+            }
 
             $data = [
                 'reviewTitle' => trim($_POST['reviewTitle']),
@@ -188,13 +190,16 @@ class StudySessionController extends Controller {
             
             $sessionId = trim($_POST['reviewSessionID']);
 
-            // Permission check: Ensure user owns the session
-            // $sessionDetails = $this->studySessionModel->getSessionById($sessionId); // Assuming this method exists
-            // if (!$sessionDetails || !isset($sessionDetails['creatorUserID']) || $sessionDetails['creatorUserID'] != $_SESSION['userId']) {
-            //     $response['message'] = 'You are not authorized to delete this session or session not found.';
-            //     echo json_encode($response);
-            //     exit;
-            // }
+            // Permission check
+            $isAdmin = isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
+            if (!$isAdmin) {
+                $sessionDetails = $this->studySessionModel->getSessionById($sessionId);
+                if (!$sessionDetails || !isset($sessionDetails['creatorUserID']) || $sessionDetails['creatorUserID'] != $_SESSION['userId']) {
+                    $response['message'] = 'You are not authorized to delete this session or session not found.';
+                    echo json_encode($response);
+                    exit;
+                }
+            }
 
             if ($this->studySessionModel->deleteSession($sessionId)) {
                 $response = ['success' => true, 'message' => 'Study session deleted successfully!'];
