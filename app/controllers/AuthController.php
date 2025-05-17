@@ -52,7 +52,12 @@ class AuthController extends Controller {
             $_SESSION['isLoggedIn'] = true;
             $_SESSION['user'] = $user;
             
-            $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
+            // Check user role for redirection
+            if (isset($user['role']) && $user['role'] === 'admin') {
+                $this->redirect('/cmsc126-study-session-management-system/public/admin'); // Corrected redirection path
+            } else {
+                $this->redirect('/cmsc126-study-session-management-system/public/dashboard');
+            }
         } else {
             $_SESSION['error'] = $result['error'];
             $this->redirect('/cmsc126-study-session-management-system/public/login');

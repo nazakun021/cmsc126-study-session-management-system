@@ -47,6 +47,7 @@ require_once '../app/core/Controller.php';
 require_once '../app/core/Model.php';
 require_once '../app/controllers/AuthController.php';
 require_once '../app/controllers/StudySessionController.php';
+require_once '../app/controllers/AdminController.php'; // Added AdminController include
 require_once '../app/Models/User.php';
 require_once '../app/Models/CourseModel.php';
 require_once '../app/Models/StudySession.php';
@@ -64,6 +65,13 @@ $router->addRoute('processRegister', 'AuthController@register');
 $router->addRoute('create-session', 'StudySessionController@createSession');
 $router->addRoute('update-session', 'StudySessionController@updateSession');
 $router->addRoute('delete-session', 'StudySessionController@deleteSession');
+
+// Admin Routes
+$router->addRoute('admin', 'AdminController@index'); // Route for the admin dashboard
+$router->addRoute('admin/', 'AdminController@index'); // Route for the admin dashboard with trailing slash
+$router->addRoute('admin/dashboard', 'AdminController@index'); // Alias for admin dashboard
+$router->addRoute('admin/deleteUser', 'AdminController@deleteUser');
+$router->addRoute('admin/deleteStudySession', 'AdminController@deleteStudySession');
 
 // Get the path after /public/
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

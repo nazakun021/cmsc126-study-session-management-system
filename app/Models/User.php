@@ -143,6 +143,21 @@ class User extends Model {
         }
     }
 
+    public function getAllUsers() { // Added getAllUsers method
+        try {
+            // Join with courses table to get courseName
+            $sql = "SELECT u.userID, u.userName, u.email, u.courseID, u.role, c.courseName 
+                    FROM {$this->table} u
+                    LEFT JOIN courses c ON u.courseID = c.courseID
+                    WHERE u.role != 'admin'";
+            $stmt = $this->pdo->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching all users: " . $e->getMessage());
+            return [];
+        }
+    }
+
     public function deleteUser($userID) {
         try {
             $userID = filter_var($userID, FILTER_SANITIZE_NUMBER_INT);

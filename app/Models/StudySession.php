@@ -265,41 +265,42 @@ class StudySession extends Model {
         }
     }
 
-    public function deleteSession($sessionId) {
+    public function getAllSessionsAdmin() { // Added getAllSessionsAdmin method
         try {
-            $sessionId = filter_var($sessionId, FILTER_SANITIZE_NUMBER_INT);
-            
-            // Corrected to use reviewSessionID
-            $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE reviewSessionID = :sessionId"); 
-            
-            if ($stmt->execute([':sessionId' => $sessionId])) {
-                if ($stmt->rowCount() > 0) {
-                    return [
-                        'success' => true,
-                        'message' => 'Study session deleted successfully.'
-                    ];
-                } else {
-                    return [
-                        'success' => false,
-                        'message' => 'Session not found or already deleted.' // More specific message
-                    ];
-                }
-            }
+            $stmt = $this->pdo->query("
+                SELECT rs.*, u.userName AS creatorName, s.subjectName
+                FROM {$this->table} rs
+                LEFT JOIN user u ON rs.creatorUserID = u.userID
+                LEFT JOIN subjects s ON rs.subjectID = s.subjectID
+                ORDER BY rs.reviewDate ASC, rs.reviewStartTime ASC
+            ");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching all sessions for admin: " . $e->getMessage());
+            return [];
+        }
+    }
 
+    public function deleteSession($reviewSessionID) { // Added deleteSession method
+        try {
+            $reviewSessionID = filter_var($reviewSessionID, FILTER_SANITIZE_NUMBER_INT);
+
+            $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE reviewSessionID = :reviewSessionID");
+            $stmt->bindParam(':reviewSessionID', $reviewSessionID, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() > 0) {
+                    return ['success' => true, 'message' => 'Study session deleted successfully.'];
+                }
+                return ['success' => false, 'error' => 'Study session not found or already deleted.'];
+            }
+            
             $errorInfo = $stmt->errorInfo();
-            error_log("Failed to delete study session. PDO Error: " . print_r($errorInfo, true));
-            return [
-                'success' => false,
-                'message' => 'Failed to delete study session.', // Kept original message for this path
-                'error' => 'Database error: ' . ($errorInfo[2] ?? 'Unknown error')
-            ];
+            error_log("Error deleting study session: " . print_r($errorInfo, true));
+            return ['success' => false, 'error' => 'Failed to delete study session. Database error: ' . $errorInfo[2]];
         } catch (PDOException $e) {
             error_log("Error deleting study session: " . $e->getMessage());
-            return [
-                'success' => false,
-                'message' => 'An error occurred while deleting the study session.', // Kept original message
-                'error' => $e->getMessage()
-            ];
+            return ['success' => false, 'error' => 'An error occurred while deleting the study session: ' . $e->getMessage()];
         }
     }
 
