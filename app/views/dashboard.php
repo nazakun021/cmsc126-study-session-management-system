@@ -195,14 +195,14 @@ $currUserId = $_SESSION['userId'] ?? null;
                                             <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php?id=<?php echo $session['reviewSessionID']; ?>" class="btn btn-icon" title="View Details">
                                                 <i data-feather="eye"></i>
                                             </a>
-                                            <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
+                                            <!-- <button class="btn btn-icon edit-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Edit">
                                                 <i data-feather="edit-2"></i>
-                                            </button>
-                                            <?php if ($session['creatorUserID'] == $currUserId): ?>
+                                            </button> -->
+                                            <?php /* if ($session['creatorUserID'] == $currUserId): ?>
                                                 <button class="btn btn-icon delete-session" data-session-id="<?php echo $session['reviewSessionID']; ?>" title="Delete">
                                                     <i data-feather="trash-2"></i>
                                                 </button>
-                                            <?php endif; ?>
+                                            <?php endif; */ ?>
                                         </div>
                                     </div>
                                 </div>
@@ -224,7 +224,7 @@ $currUserId = $_SESSION['userId'] ?? null;
                 </button>
             </div>
             <div class="modal-body">
-                <form action="/cmsc126-study-session-management-system/public/create-session" id="addSessionForm" method="POST">
+                <form action="/cmsc126-study-session-management-system/public/create-session.php" id="addSessionForm" method="POST">
                     <input type="hidden" name="action" value="create-session">
                     <div class="form-group">
                         <label for="sessionTitle">Title</label>
@@ -307,12 +307,12 @@ $currUserId = $_SESSION['userId'] ?? null;
                         <i data-feather="more-vertical"></i>
                     </button>
                     <div class="card-menu-dropdown">
-                        <a href="#" class="card-menu-item edit-session">
+                        <!-- <a href="#" class="card-menu-item edit-session">
                             <i data-feather="edit-2"></i> Edit
                         </a>
                         <a href="#" class="card-menu-item delete-session">
                             <i data-feather="trash-2"></i> Delete
-                        </a>
+                        </a> -->
                     </div>
                 </div>
             </div>
