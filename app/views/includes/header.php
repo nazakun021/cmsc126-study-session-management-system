@@ -1,17 +1,11 @@
 <?php
 require_once __DIR__ . '/../../config/init.php';
 requireLogin();
-require_once __DIR__ . '/../../config/db_connection.php';
-// Load models
-require_once __DIR__ . '/../../core/Model.php';
-require_once __DIR__ . '/../../models/User.php';
-require_once __DIR__ . '/../../models/CourseModel.php';
-global $pdo;
+
+// Use shared database initialization
+require_once __DIR__ . '/db-init.php';
 
 // Get user info
-$userModel = new \App\Models\User($pdo);
-$courseModel = new \App\Models\CourseModel($pdo);
-
 $currentUser = getCurrentUser();
 $user = $userModel->getUserById($currentUser['userId']);
 $courseName = '';

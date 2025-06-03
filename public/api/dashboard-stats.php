@@ -5,10 +5,9 @@ error_reporting(E_ERROR | E_PARSE);
 file_put_contents(__DIR__ . '/debug.log', date('c') . ' - dashboard-stats.php called' . PHP_EOL, FILE_APPEND);
 
 require_once __DIR__ . '/../../app/config/init.php';
-require_once __DIR__ . '/../../app/config/db_connection.php';
-require_once __DIR__ . '/../../app/core/Model.php';
-require_once __DIR__ . '/../../app/Models/StudySession.php';
-require_once __DIR__ . '/../../app/Models/CourseModel.php';
+
+// Use shared database initialization
+require_once __DIR__ . '/../../app/views/includes/db-init.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -19,9 +18,6 @@ if (!isset($_SESSION['userId'])) {
     exit;
 }
 $userId = $_SESSION['userId'];
-$pdo = require __DIR__ . '/../../app/config/db_connection.php';
-$studySessionModel = new \App\Models\StudySession($pdo);
-$courseModel = new \App\Models\CourseModel($pdo);
 $sessions = $studySessionModel->getAllSessions();
 $subjects = $courseModel->getSubjectsByUserId($userId);
 $upcomingSessions = array_filter($sessions, function($session) {

@@ -44,33 +44,20 @@ document.addEventListener('DOMContentLoaded', function() {
         closeDeleteModalButton,
         cancelDeleteButton,
         confirmDeleteButton
-    });
-
-    // --- Function to open Add Session Modal ---
+    });    // --- Function to open Add Session Modal ---
     const openAddModal = () => {
-        if (addSessionModal) {
-            console.log('Opening add session modal');
-            addSessionModal.style.display = 'flex';
-        } else {
-            console.error('Add Session Modal (add-session-modal) not found when trying to open.');
-        }
+        Modal.open('add-session-modal');
     };
 
     // --- Function to close Add Session Modal ---
     const closeAddModal = () => {
-        if (addSessionModal) {
-            console.log('Closing add session modal');
-            addSessionModal.style.display = 'none';
+        Modal.close('add-session-modal', () => {
             if (addSessionForm) {
                 addSessionForm.reset();
                 console.log('Add session form reset.');
             }
-        } else {
-            console.error('Add Session Modal (add-session-modal) not found when trying to close.');
-        }
-    };
-
-    // --- Event Listeners for Add Session Modal ---
+        });
+    };    // --- Event Listeners for Add Session Modal ---
     if (addSessionBtn) {
         addSessionBtn.addEventListener('click', openAddModal);
     } else {
@@ -83,30 +70,20 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn('Empty Add Button (empty-add-btn) not found. This might be normal if sessions exist.');
     }
 
-    if (closeModalButton) {
-        closeModalButton.addEventListener('click', closeAddModal);
-    } else {
-        console.error('Close Modal Button (close-modal) for Add Modal not found!');
-    }
-
-    if (cancelAddButton) {
-        cancelAddButton.addEventListener('click', closeAddModal);
-    } else {
-        console.error('Cancel Add Button (cancel-add) for Add Modal not found!');
-    }
+    // Setup close buttons for all modals
+    Modal.setupCloseButtons('add-session-modal', closeAddModal);
+    Modal.setupCloseButtons('edit-session-modal', closeEditModal);
+    Modal.setupCloseButtons('delete-modal', closeDeleteConfirmationModal);
 
     // --- Add Session Form Submission ---
     if (addSessionForm) {
         addSessionForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             console.log('Add session form submitted.');
-            try {
-                const formData = new FormData(e.target);
-                const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-                if (csrfTokenMeta) {
-                    formData.append('csrf_token', csrfTokenMeta.content);
-                } else {
-                    console.warn('CSRF token meta tag not found for add form.');
+            try {                const formData = new FormData(e.target);
+                
+                if (!CSRF.addToFormData(formData)) {
+                    console.warn('CSRF token not found for add form.');
                 }
 
                 console.log('Submitting ADD form data from review-sessions.js:', Object.fromEntries(formData));
@@ -134,19 +111,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: formData
                 });
                 const result = await response.json();
-                console.log('Server response from ADD form submission:', result);
-
-                if (result.success) {
-                    (typeof Toast !== 'undefined' ? Toast.show('Session created successfully', 'success') : alert('Session created successfully'));
+                console.log('Server response from ADD form submission:', result);                if (result.success) {
+                    Notification.success('Session created successfully');
                     closeAddModal();
                     window.location.reload();
                 } else {
                     let errorMessage = result.message || (result.errors && result.errors.length > 0 ? result.errors.join('\n') : 'Failed to create session.');
-                    (typeof Toast !== 'undefined' ? Toast.show(errorMessage, 'error') : alert(errorMessage));
+                    Notification.error(errorMessage);
                 }
             } catch (error) {
                 console.error('Error creating session:', error);
-                (typeof Toast !== 'undefined' ? Toast.show('An unexpected error occurred. Please try again.', 'error') : alert('An unexpected error occurred. Please try again.'));
+                Notification.error('An unexpected error occurred. Please try again.');
             }
         });
     } else {
@@ -168,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
             editSessionForm.querySelector('#edit-session-location').value = sessionData.location;
             editSessionForm.querySelector('#edit-session-description').value = sessionData.description;
 
-            editSessionModal.style.display = 'flex';
+            Modal.open('edit-session-modal');
         } else {
             if (!editSessionModal) console.error('Edit Session Modal (edit-session-modal) not found when trying to open.');
             if (!editSessionForm) console.error('Edit Session Form (edit-session-form) not found when trying to open.');
@@ -176,28 +151,12 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const closeEditModal = () => {
-        if (editSessionModal) {
-            console.log('Closing edit session modal');
-            editSessionModal.style.display = 'none';
+        Modal.close('edit-session-modal', () => {
             if (editSessionForm) {
                 editSessionForm.reset();
             }
-        } else {
-            console.error('Edit Session Modal (edit-session-modal) not found when trying to close.');
-        }
+        });
     };
-
-    if (closeEditModalButton) {
-        closeEditModalButton.addEventListener('click', closeEditModal);
-    } else {
-        console.warn('Close Edit Modal Button (close-edit-modal) not found. This might be an issue if you have an X button.');
-    }
-
-    if (cancelEditButton) {
-        cancelEditButton.addEventListener('click', closeEditModal);
-    } else {
-        console.error('Cancel Edit Button (cancel-edit-session) not found!');
-    }
 
     document.querySelectorAll('.edit-session').forEach(button => {
         button.addEventListener('click', function() {
@@ -228,25 +187,17 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopImmediatePropagation(); 
             console.log('Edit session form submission initiated. Default prevented.');
 
-            const sessionIdField = editSessionForm.querySelector('#edit-session-id');
-            if (!sessionIdField || !sessionIdField.value) { // Check if field exists and has a value
+            const sessionIdField = editSessionForm.querySelector('#edit-session-id');            if (!sessionIdField || !sessionIdField.value) { // Check if field exists and has a value
                 console.error('Session ID field (#edit-session-id) not found or empty in edit form.');
-                (typeof Toast !== 'undefined' ? Toast.show('Critical error: Session ID field missing or empty.', 'error') : alert('Critical error: Session ID field missing or empty.'));
+                Notification.error('Critical error: Session ID field missing or empty.');
                 return;
             }
             const sessionId = sessionIdField.value;
-            console.log('Attempting to update session ID:', sessionId);
-
-            try {
+            console.log('Attempting to update session ID:', sessionId);            try {
                 const formData = new FormData(e.target);
-                const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-
-                if (csrfTokenMeta && csrfTokenMeta.content) {
-                    formData.append('csrf_token', csrfTokenMeta.content);
-                    console.log('CSRF token appended to edit form data:', csrfTokenMeta.content);
-                } else {
-                    console.warn('CSRF token meta tag not found or empty for edit form.');
-                    (typeof Toast !== 'undefined' ? Toast.show('CSRF token missing. Cannot submit.', 'error') : alert('CSRF token missing. Cannot submit.'));
+                  if (!CSRF.addToFormData(formData)) {
+                    console.warn('CSRF token not found for edit form.');
+                    Notification.error('CSRF token missing. Cannot submit.');
                     return; 
                 }
 
@@ -264,10 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 console.log('Raw response from server (edit):', response);
                 const result = await response.json();
-                console.log('Server JSON response from EDIT form submission:', result);
-
-                if (result.success) {
-                    (typeof Toast !== 'undefined' ? Toast.show(result.message || 'Session updated successfully!', 'success') : alert(result.message || 'Session updated successfully!'));
+                console.log('Server JSON response from EDIT form submission:', result);                if (result.success) {
+                    Notification.success(result.message || 'Session updated successfully!');
                     closeEditModal();
                     
                     // Option 1: Reload the page (simplest for server-side filtered lists)
@@ -301,52 +250,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     // } else {
                     //     console.warn('Could not find card to update in DOM for session ID:', sessionId, '. Page will reload.');
                     //     window.location.reload();
-                    // }
-
-                } else {
-                    let errorMessage = result.message || (result.errors && result.errors.length > 0 ? result.errors.join('\\\\n') : 'Failed to update session.');
-                    (typeof Toast !== 'undefined' ? Toast.show(errorMessage, 'error') : alert(errorMessage));
+                    // }                } else {
+                    let errorMessage = result.message || (result.errors && result.errors.length > 0 ? result.errors.join('\\n') : 'Failed to update session.');
+                    Notification.error(errorMessage);
                 }
             } catch (error) {
                 console.error(`Error updating session ${sessionId}:`, error);
-                (typeof Toast !== 'undefined' ? Toast.show('An unexpected error occurred while updating. Check console.', 'error') : alert('An unexpected error occurred. Check console.'));
+                Notification.error('An unexpected error occurred while updating. Check console.');
             }
         });
     } else {
         console.error('Edit Session Form (edit-session-form) not found!');
     }
-
-
     // --- Delete Confirmation Modal Logic ---
     const openDeleteConfirmationModal = (sessionId) => {
-        if (deleteModal) {
-            console.log(`Opening delete confirmation modal for session ID: ${sessionId}`);
-            sessionToDeleteId = sessionId;
-            deleteModal.style.display = 'flex';
-        } else {
-            console.error('Delete Modal (delete-modal) not found when trying to open.');
-        }
+        console.log(`Opening delete confirmation modal for session ID: ${sessionId}`);
+        sessionToDeleteId = sessionId;
+        Modal.open('delete-modal');
     };
 
     const closeDeleteConfirmationModal = () => {
-        if (deleteModal) {
-            console.log('Closing delete confirmation modal');
-            deleteModal.style.display = 'none';
-        }
+        Modal.close('delete-modal');
         sessionToDeleteId = null;
     };
-
-    if (closeDeleteModalButton) {
-        closeDeleteModalButton.addEventListener('click', closeDeleteConfirmationModal);
-    } else {
-        console.error('Close Delete Modal Button (close-delete-modal) not found!');
-    }
-
-    if (cancelDeleteButton) {
-        cancelDeleteButton.addEventListener('click', closeDeleteConfirmationModal);
-    } else {
-        console.error('Cancel Delete Button (cancel-delete) not found!');
-    }
 
     if (confirmDeleteButton) {
         confirmDeleteButton.addEventListener('click', async (event) => { // Added event parameter
@@ -357,18 +283,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (sessionToDeleteId) {
                 const idToDelete = sessionToDeleteId; // Capture the ID before any async operations or modal closing
-                console.log('Attempting to delete session ID:', idToDelete);
-                try {
-                    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+                console.log('Attempting to delete session ID:', idToDelete);                try {
                     const formData = new FormData();
                     formData.append('reviewSessionID', idToDelete); // Use captured idToDelete
 
-                    if (csrfTokenMeta && csrfTokenMeta.content) {
-                        formData.append('csrf_token', csrfTokenMeta.content);
-                        console.log('CSRF token appended to delete form data:', csrfTokenMeta.content);
-                    } else {
-                        console.warn('CSRF token meta tag not found or empty for delete action.');
-                        (typeof Toast !== 'undefined' ? Toast.show('CSRF token missing. Cannot submit delete.', 'error') : alert('CSRF token missing. Cannot submit delete.'));
+                    if (!CSRF.addToFormData(formData)) {
+                        console.warn('CSRF token not found for delete action.');
+                        Notification.error('CSRF token missing. Cannot submit delete.');
                         return; // Stop if CSRF is missing
                     }
 
@@ -381,10 +302,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     console.log('Raw response from server (delete):', response);
                     const result = await response.json();
-                    console.log('Server JSON response from DELETE action:', result);
-
-                    if (result.success) {
-                        (typeof Toast !== 'undefined' ? Toast.show(result.message || 'Session deleted successfully!', 'success') : alert(result.message || 'Session deleted successfully!'));
+                    console.log('Server JSON response from DELETE action:', result);                    if (result.success) {
+                        Notification.success(result.message || 'Session deleted successfully!');
                         
                         const cardToRemove = document.querySelector(`.session-item[data-session-id="${idToDelete}"]`); // Use captured idToDelete
                         if (cardToRemove) {
@@ -396,12 +315,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         closeDeleteConfirmationModal(); // Close modal AFTER successful operation and DOM update
                     } else {
                         let errorMessage = result.message || 'Failed to delete session.';
-                        (typeof Toast !== 'undefined' ? Toast.show(errorMessage, 'error') : alert(errorMessage));
+                        Notification.error(errorMessage);
                         // Modal remains open on failure for user to see context or retry.
                     }
                 } catch (error) {
                     console.error(`Error deleting session ${idToDelete}:`, error); // Use captured idToDelete
-                    (typeof Toast !== 'undefined' ? Toast.show('An unexpected error occurred while deleting. Check console.', 'error') : alert('An unexpected error occurred. Check console.'));
+                    Notification.error('An unexpected error occurred while deleting. Check console.');
                     // Modal remains open on error.
                 }
             } else {

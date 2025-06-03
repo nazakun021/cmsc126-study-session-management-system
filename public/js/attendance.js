@@ -20,16 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Attendance data array (empty initially)
     let records = [];
     let recordToDelete = null;
-    
-    // Show/hide empty state based on records
+      // Show/hide empty state based on records
     function updateEmptyState() {
-        if (records.length === 0) {
-            emptyState.style.display = 'flex';
-            attendanceContainer.style.display = 'none';
-        } else {
-            emptyState.style.display = 'none';
-            attendanceContainer.style.display = 'block';
-        }
+        EmptyState.update('attendance-container', 'empty-state', records);
     }
     
     // Render all attendance records
@@ -48,65 +41,41 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update empty state
         updateEmptyState();
     }
-    
-    // Add a single record to the DOM
+      // Add a single record to the DOM
     function addRecordToDOM(record) {
         const template = document.getElementById('record-template');
         const clone = document.importNode(template.content, true);
         
         // Set record data
         clone.querySelector('.record-session').textContent = record.session;
-        clone.querySelector('.record-date').textContent = formatDate(record.date);
+        clone.querySelector('.record-date').textContent = Utils.formatDate(record.date);
         clone.querySelector('.record-attendees').textContent = `${record.attendees} attendees`;
         clone.querySelector('.record-notes').textContent = record.notes || 'No notes provided';
         
         // Set data attribute for identification
         const recordItem = clone.querySelector('.attendance-item');
         recordItem.dataset.id = record.id;
-        
-        // Add event listeners for actions
+          // Add event listeners for actions
         const deleteBtn = clone.querySelector('.delete-record');
         deleteBtn.addEventListener('click', () => {
             recordToDelete = record.id;
-            deleteModal.style.display = 'flex';
+            Modal.open('delete-modal');
         });
         
         attendanceList.appendChild(clone);
-    }
-    
-    // Format date for display
-    function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString(undefined, options);
-    }
-    
-    // Generate a unique ID
-    function generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-    
+    }    
     // Event Listeners
+    Modal.setupCloseButtons('add-record-modal');
+    Modal.setupCloseButtons('delete-modal');
     
     // Open add record modal
     addRecordBtn.addEventListener('click', () => {
-        addRecordModal.style.display = 'flex';
+        Modal.open('add-record-modal');
     });
     
     // Open add record modal from empty state
     emptyAddBtn.addEventListener('click', () => {
-        addRecordModal.style.display = 'flex';
-    });
-    
-    // Close add record modal
-    closeModalBtn.addEventListener('click', () => {
-        addRecordModal.style.display = 'none';
-        addRecordForm.reset();
-    });
-    
-    // Cancel add record
-    cancelAddBtn.addEventListener('click', () => {
-        addRecordModal.style.display = 'none';
-        addRecordForm.reset();
+        Modal.open('add-record-modal');
     });
     
     // Submit add record form
@@ -121,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create new record object
         const newRecord = {
-            id: generateId(),
+            id: Utils.generateId(),
             session,
             date,
             attendees,
@@ -130,24 +99,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add to records array
         records.push(newRecord);
-        
-        // Render records
+          // Render records
         renderRecords();
         
         // Close modal and reset form
-        addRecordModal.style.display = 'none';
-        addRecordForm.reset();
+        Modal.close('add-record-modal');
     });
-    
-    // Close delete modal
+      // Close delete modal
     closeDeleteModalBtn.addEventListener('click', () => {
-        deleteModal.style.display = 'none';
+        Modal.close('delete-modal');
         recordToDelete = null;
     });
     
     // Cancel delete
     cancelDeleteBtn.addEventListener('click', () => {
-        deleteModal.style.display = 'none';
+        Modal.close('delete-modal');
         recordToDelete = null;
     });
     
@@ -161,43 +127,12 @@ document.addEventListener('DOMContentLoaded', function() {
             renderRecords();
             
             // Close modal
-            deleteModal.style.display = 'none';
+            Modal.close('delete-modal');
             recordToDelete = null;
         }
     });
     
-    // Close modals when clicking outside
-    window.addEventListener('click', (e) => {
-        if (e.target === addRecordModal) {
-            addRecordModal.style.display = 'none';
-            addRecordForm.reset();
-        }
-        if (e.target === deleteModal) {
-            deleteModal.style.display = 'none';
-            recordToDelete = null;
-        }
-    });
-    
-    // Mobile menu toggle
-    const menuToggle = document.getElementById('menu-toggle');
-    const sidebar = document.querySelector('.sidebar');
-    
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
-    
-    // Dropdown toggle
-    document.addEventListener('click', function(event) {
-        if (event.target.closest('.dropdown-toggle')) {
-            const dropdown = event.target.closest('.dropdown').querySelector('.dropdown-menu');
-            dropdown.classList.toggle('active');
-            event.stopPropagation();
-        } else {
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                menu.classList.remove('active');
-            });
-        }
-    });
+    MobileMenu.init();
     
     // Initialize the page
     updateEmptyState();

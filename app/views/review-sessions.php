@@ -1,13 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 requireLogin();
-require_once __DIR__ . '/../config/db_connection.php';
-$pdo = require __DIR__ . '/../config/db_connection.php';
-require_once __DIR__ . '/../core/Model.php';
-require_once __DIR__ . '/../Models/StudySession.php';
-require_once __DIR__ . '/../Models/CourseModel.php';
-$studySessionModel = new \App\Models\StudySession($pdo);
-$courseModel = new \App\Models\CourseModel($pdo);
+
+// Use shared database initialization
+require_once __DIR__ . '/includes/db-init.php';
 
 // Filter logic
 $filterSubject = $_GET['subjectID'] ?? '';
@@ -37,9 +33,8 @@ $currUserId = $_SESSION['userId'] ?? null;
     <link rel="stylesheet" href="/cmsc126-study-session-management-system/public/css/styles.css">
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
+<body>    <div class="app-container">
+        <!-- Sidebar Navigation with filter functionality -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1 class="app-title">ReviewApp</h1>
@@ -322,26 +317,7 @@ $currUserId = $_SESSION['userId'] ?? null;
                 </form>
             </div>
         </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div id="delete-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Delete Session</h3>
-                <button id="close-delete-modal" class="close-btn">
-                    <i data-feather="x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this session? This action cannot be undone.</p>
-                <div class="form-actions">
-                    <button type="button" id="cancel-delete" class="btn btn-secondary">Cancel</button>
-                    <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    </div>    <?php require_once __DIR__ . '/includes/delete-modal.php'; ?>
 
     <!-- Session Template -->
     <template id="session-template">

@@ -1,17 +1,11 @@
 <?php
 require_once __DIR__ . '/../config/init.php';
 requireLogin();
-require_once __DIR__ . '/../config/db_connection.php';
-// Load models
-require_once __DIR__ . '/../core/Model.php';
-require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../models/CourseModel.php';
-global $pdo;
+
+// Use shared database initialization  
+require_once __DIR__ . '/includes/db-init.php';
 
 // Get user info
-$userModel = new \App\Models\User($pdo);
-$courseModel = new \App\Models\CourseModel($pdo);
-
 $currentUser = getCurrentUser();
 $user = $userModel->getUserById($currentUser['userId']);
 $courseName = '';
@@ -32,33 +26,8 @@ if ($user && !empty($user['courseID'])) {
   <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h1 class="app-title">ReviewApp</h1>
-            <button id="menu-toggle" class="menu-toggle">
-                <i data-feather="menu"></i>
-            </button>
-        </div>
-        <nav class="sidebar-nav">
-            <ul>
-                <li>
-                    <a href="/cmsc126-study-session-management-system/app/views/dashboard.php">
-                        <i data-feather="home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php">
-                        <i data-feather="calendar"></i>
-                        <span>Review Sessions</span>
-                    </a>
-                </li>
-                <!-- Remove Subjects and Attendance links from sidebar -->
-            </ul>
-        </nav>
-    </aside>
+  <div class="app-container">    <!-- Sidebar Navigation -->
+    <?php require_once __DIR__ . '/includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -104,6 +73,7 @@ if ($user && !empty($user['courseID'])) {
     </main>
   </div>
 
-  <script src="/cmsc126-study-session-management-system/public/js/script.js"></script>
+  <script src="/cmsc126-study-session-management-system/public/js/utils.js"></script>
+  <script src="/cmsc126-study-session-management-system/public/js/dropdown.js"></script>
 </body>
 </html>

@@ -20,16 +20,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateLocalStorage() {
         localStorage.setItem('subjects', JSON.stringify(subjects));
-    }
-
-    function updateEmptyState() {
-        if (subjects.length === 0) {
-            emptyState.style.display = 'flex';
-            subjectsContainer.style.display = 'none';
-        } else {
-            emptyState.style.display = 'none';
-            subjectsContainer.style.display = 'block';
-        }
+    }    function updateEmptyState() {
+        EmptyState.update('subjects-container', 'empty-state', subjects);
     }
 
     function renderSubjects() {
@@ -49,37 +41,22 @@ document.addEventListener('DOMContentLoaded', function () {
         clone.querySelector('.subject-color').style.backgroundColor = subject.color;
 
         const subjectCard = clone.querySelector('.subject-card');
-        subjectCard.dataset.id = subject.id;
-
-        const deleteBtn = clone.querySelector('.delete-subject');
+        subjectCard.dataset.id = subject.id;        const deleteBtn = clone.querySelector('.delete-subject');
         deleteBtn.addEventListener('click', () => {
             subjectToDelete = subject.id;
-            deleteModal.style.display = 'flex';
+            Modal.open('delete-modal');
         });
 
         subjectsGrid.appendChild(clone);
-    }
-
-    function generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substring(2);
-    }
+    }    Modal.setupCloseButtons('add-subject-modal');
+    Modal.setupCloseButtons('delete-modal');
 
     addSubjectBtn.addEventListener('click', () => {
-        addSubjectModal.style.display = 'flex';
+        Modal.open('add-subject-modal');
     });
 
     emptyAddBtn.addEventListener('click', () => {
-        addSubjectModal.style.display = 'flex';
-    });
-
-    closeModalBtn.addEventListener('click', () => {
-        addSubjectModal.style.display = 'none';
-        addSubjectForm.reset();
-    });
-
-    cancelAddBtn.addEventListener('click', () => {
-        addSubjectModal.style.display = 'none';
-        addSubjectForm.reset();
+        Modal.open('add-subject-modal');
     });
 
     addSubjectForm.addEventListener('submit', (e) => {
@@ -91,28 +68,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const color = document.getElementById('subject-color').value;
 
         const newSubject = {
-            id: generateId(),
+            id: Utils.generateId(),
             name,
             code,
             description,
             color
-        };
-
-        subjects.push(newSubject);
+        };        subjects.push(newSubject);
         updateLocalStorage();
         renderSubjects();
 
-        addSubjectModal.style.display = 'none';
-        addSubjectForm.reset();
-    });
-
-    closeDeleteModalBtn.addEventListener('click', () => {
-        deleteModal.style.display = 'none';
+        Modal.close('add-subject-modal');
+    });    closeDeleteModalBtn.addEventListener('click', () => {
+        Modal.close('delete-modal');
         subjectToDelete = null;
     });
 
     cancelDeleteBtn.addEventListener('click', () => {
-        deleteModal.style.display = 'none';
+        Modal.close('delete-modal');
         subjectToDelete = null;
     });
 
@@ -121,40 +93,12 @@ document.addEventListener('DOMContentLoaded', function () {
             subjects = subjects.filter(subject => subject.id !== subjectToDelete);
             updateLocalStorage();
             renderSubjects();
-            deleteModal.style.display = 'none';
+            Modal.close('delete-modal');
             subjectToDelete = null;
         }
     });
 
-    window.addEventListener('click', (e) => {
-        if (e.target === addSubjectModal) {
-            addSubjectModal.style.display = 'none';
-            addSubjectForm.reset();
-        }
-        if (e.target === deleteModal) {
-            deleteModal.style.display = 'none';
-            subjectToDelete = null;
-        }
-    });
-
-    const menuToggle = document.getElementById('menu-toggle');
-    const sidebar = document.querySelector('.sidebar');
-
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
-
-    document.addEventListener('click', function (event) {
-        if (event.target.closest('.dropdown-toggle')) {
-            const dropdown = event.target.closest('.dropdown').querySelector('.dropdown-menu');
-            dropdown.classList.toggle('active');
-            event.stopPropagation();
-        } else {
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                menu.classList.remove('active');
-            });
-        }
-    });
+    MobileMenu.init();
 
     renderSubjects(); // Load from localStorage on page load
 });

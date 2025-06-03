@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../app/config/init.php';
 
+// Use shared database initialization
+require_once __DIR__ . '/../app/views/includes/db-init.php';
+
 header('Content-Type: application/json');
 $response = ['success' => false, 'message' => 'An unknown error occurred.']; // Default response
 
@@ -16,11 +19,9 @@ if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equ
     // For debugging:
     // $response['debug_session_csrf'] = $_SESSION['csrf_token'] ?? 'not set';
     // $response['debug_post_csrf'] = $_POST['csrf_token'] ?? 'not set';
-    echo json_encode($response);
-    exit;
+    echo json_encode($response);    exit;
 }
 
-$pdo = require __DIR__ . '/../app/config/db_connection.php';
 if (!$pdo) {
     $response['message'] = 'Database connection failed.';
     error_log('delete-session.php: Database connection failed.');

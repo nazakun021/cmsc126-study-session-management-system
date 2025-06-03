@@ -92,13 +92,11 @@ function renderSessions(sessions) {
     }
 
     if (!sessions || sessions.length === 0) {
-        container.style.display = 'none';
-        emptyState.style.display = 'flex';
+        EmptyState.update('sessions-container', 'empty-add-btn', []);
         return;
     }
 
-    container.style.display = 'block';
-    emptyState.style.display = 'none';
+    EmptyState.update('sessions-container', 'empty-add-btn', sessions);
 
     const template = document.getElementById('session-card-template');
     if (!template) {
@@ -121,7 +119,7 @@ function renderSessions(sessions) {
 function populateSessionCard(clone, session) {
     clone.querySelector('.card-title').textContent = session.reviewTitle;
     clone.querySelector('.card-subject').textContent = session.subjectName;
-    clone.querySelector('.card-date').textContent = formatDate(session.reviewDate);
+    clone.querySelector('.card-date').textContent = Utils.formatDate(session.reviewDate);
     clone.querySelector('.card-time').textContent = `${session.reviewStartTime} - ${session.reviewEndTime}`;
     clone.querySelector('.card-location').textContent = session.reviewLocation;
 
@@ -164,16 +162,14 @@ function handleEditSession(session) {
     form.querySelector('[name="endTime"]').value = session.endTime;
     form.querySelector('[name="location"]').value = session.location;
 
-    modal.style.display = 'flex';
+    Modal.open('edit-session-modal');
 }
 
 function setupEventListeners() {
     // Add session button
     const addSessionBtn = document.getElementById('add-session-btn');
-    if (addSessionBtn) {
-        addSessionBtn.addEventListener('click', () => {
-            const modal = document.getElementById('add-session-modal');
-            if (modal) modal.style.display = 'flex';
+    if (addSessionBtn) {        addSessionBtn.addEventListener('click', () => {
+            Modal.open('add-session-modal');
         });
     }
 
@@ -186,55 +182,35 @@ function setupEventListeners() {
     const editSessionForm = document.getElementById('editSessionForm');
     if (editSessionForm) {
         editSessionForm.addEventListener('submit', handleUpdateSession);
-    }
-
-    // Modal close buttons
+    }    // Modal close buttons
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const modal = btn.closest('.modal');
-            if (modal) modal.style.display = 'none';
+            if (modal) Modal.close(modal.id);
         });
-    });
-
-    // Add Session Modal Logic
+    });// Add Session Modal Logic
     const emptyAddBtn = document.getElementById('empty-add-btn');
-    const addSessionModal = document.getElementById('add-session-modal');
-    const closeModalBtn = document.getElementById('close-modal');
-    const cancelAddBtn = document.getElementById('cancel-add');
 
     // Open the Add Session Modal
     const openAddSessionModal = () => {
-        if (addSessionModal) addSessionModal.style.display = 'flex';
+        Modal.open('add-session-modal');
     };
 
     if (addSessionBtn) addSessionBtn.addEventListener('click', openAddSessionModal);
     if (emptyAddBtn) emptyAddBtn.addEventListener('click', openAddSessionModal);
 
-    // Close the Add Session Modal
-    const closeAddSessionModal = () => {
-        if (addSessionModal) addSessionModal.style.display = 'none';
-    };
-
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeAddSessionModal);
-    if (cancelAddBtn) cancelAddBtn.addEventListener('click', closeAddSessionModal);
-
-    // Close modal when clicking outside the modal content
-    window.addEventListener('click', function (event) {
-        if (addSessionModal && event.target === addSessionModal) {
-            closeAddSessionModal();
-        }
-    });
+    // Setup modal close buttons
+    Modal.setupCloseButtons('add-session-modal');
+    Modal.setupCloseButtons('delete-modal');
 }
 
 async function handleAddSession(e) {
     e.preventDefault();
 
-    try {
-        const formData = new FormData(e.target);
+    try {        const formData = new FormData(e.target);
         
         // Add CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-        formData.append('csrf_token', csrfToken);
+        CSRF.addToFormData(formData);
 
         // Log form data for debugging
         console.log('Submitting form data:', Object.fromEntries(formData));
@@ -256,25 +232,23 @@ async function handleAddSession(e) {
         });
 
         const result = await response.json();
-        console.log('Server response:', result);
-        
-        if (result.success) {
-            Toast.show('Session created successfully', 'success');
-            e.target.closest('.modal').style.display = 'none';
+        console.log('Server response:', result);        if (result.success) {
+            Notification.success('Session created successfully');
+            Modal.close(e.target.closest('.modal').id);
             e.target.reset();
             loadDashboardData(); // Reload the dashboard data
         } else {
             // Handle validation errors
             if (result.errors && result.errors.length > 0) {
                 const errorMessage = result.errors.join('\n');
-                Toast.show(errorMessage, 'error');
+                Notification.error(errorMessage);
             } else {
-                Toast.show(result.message || 'Failed to create session', 'error');
+                Notification.error(result.message || 'Failed to create session');
             }
         }
     } catch (error) {
         console.error('Error creating session:', error);
-        Toast.show('An unexpected error occurred. Please try again.', 'error');
+        Notification.error('An unexpected error occurred. Please try again.');
     }
 }
 
@@ -290,22 +264,17 @@ async function handleUpdateSession(e) {
         }
 
         const formData = new FormData(e.target);
-        const sessionId = formData.get('sessionId');
-
-        await Ajax.request(`/api/sessions/${sessionId}`, {
+        const sessionId = formData.get('sessionId');        await Ajax.request(`/api/sessions/${sessionId}`, {
             method: 'PUT',
             body: formData
         });
 
-        Toast.show('Session updated successfully', 'success');
-        e.target.closest('.modal').style.display = 'none';
+        Notification.success('Session updated successfully');
+        Modal.close(e.target.closest('.modal').id);
         loadDashboardData();
     } catch (error) {
         ErrorHandler.handle(error);
     }
 }
 
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-}
+

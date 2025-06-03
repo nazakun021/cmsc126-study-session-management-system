@@ -7,6 +7,10 @@ ini_set('log_errors', 1); // Enable error logging
 error_reporting(E_ALL); // Report all errors for logging
 
 require_once __DIR__ . '/../app/config/init.php';
+
+// Use shared database initialization
+require_once __DIR__ . '/../app/views/includes/db-init.php';
+
 use App\Models\StudySession; // Import the StudySession model
 
 // Ensure we always output JSON
@@ -76,10 +80,7 @@ try {
         echo json_encode($response);
         exit;
     }
-    // Further validation (e.g., date/time formats, subjectID existence) is handled by the model's validateSessionData.
-
-    // 4. Database Connection (ensure $pdo is available)
-    $pdo = require __DIR__ . '/../app/config/db_connection.php';
+    // Further validation (e.g., date/time formats, subjectID existence) is handled by the model's validateSessionData.    // 4. Database Connection (ensure $pdo is available)
     if (!$pdo) {
         $response['message'] = 'Database connection failed.';
         error_log('update-session.php: Database connection failed.');

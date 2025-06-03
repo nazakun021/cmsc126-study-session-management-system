@@ -7,13 +7,8 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../config/init.php';
 requireLogin();
 
-require_once __DIR__ . '/../config/db_connection.php';
-$pdo = require __DIR__ . '/../config/db_connection.php';
-
-require_once __DIR__ . '/../core/Model.php';
-
-require_once __DIR__ . '/../Models/StudySession.php';
-$studySessionModel = new \App\Models\StudySession($pdo);
+// Use shared database initialization
+require_once __DIR__ . '/includes/db-init.php';
 
 // Get filter values from GET request - COMMENTED OUT
 // $filterSubjectID = $_GET['subjectID'] ?? ''; 
@@ -36,8 +31,6 @@ $studySessionModel = new \App\Models\StudySession($pdo);
 // Ensure $sessions is always an array to prevent errors in loops/counts later
 $sessions = is_array($sessions) ? $sessions : [];
 
-require_once __DIR__ . '/../Models/CourseModel.php';
-$courseModel = new \App\Models\CourseModel($pdo); // Ensured this line is correct
 $subjectsResult = $courseModel->getAllSubjects();
 $subjects = $subjectsResult['success'] ? $subjectsResult['subjects'] : [];
 
@@ -58,64 +51,9 @@ $currUserId = $_SESSION['userId'] ?? null;
     <link rel="stylesheet" href="/cmsc126-study-session-management-system/public/css/styles.css">
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<body>
-    <div class="app-container">
+<body>    <div class="app-container">
         <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1 class="app-title">ReviewApp</h1>
-                <button id="menu-toggle" class="menu-toggle">
-                    <i data-feather="menu"></i>
-                </button>
-            </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li class="active">
-                        <a href="/cmsc126-study-session-management-system/app/views/dashboard.php">
-                            <i data-feather="home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php">
-                            <i data-feather="calendar"></i>
-                            <span>Review Sessions</span>
-                        </a>
-                    </li>
-                    <li>
-                        <!-- Filter Sessions button - COMMENTED OUT -->
-                        <?php /*
-                        <button class="sidebar-toggle" id="filter-toggle" style="width:100%;background:none;border:none;text-align:left;padding:0.75rem 1.5rem;color:#4f46e5;font-size:1rem;font-weight:500;cursor:pointer;display:flex;align-items:center;">
-                            <i data-feather="filter" style="color:#4f46e5;width:18px;height:18px;margin-right:0.75rem;"></i>
-                            <span style="color:#4f46e5;font-size:1rem;font-weight:500;">Filter Sessions</span>
-                        </button>
-                        */ ?>
-                    </li>
-                </ul>
-                <!-- Sidebar Filter Panel - COMMENTED OUT -->
-                <?php /*
-                <div id="sidebar-filter-panel" style="display:none;padding:1rem 1.5rem 0 1.5rem;">
-                    <form id="sidebar-filter-form" method="GET" action="dashboard.php">
-                        <div class="form-group">
-                            <label for="filter-subject">Subject</label>
-                            <select id="filter-subject" name="subjectID">
-                                <option value="">All Subjects</option>
-                                <?php foreach ($subjects as $subject): ?>
-                                    <option value="<?php echo htmlspecialchars($subject['subjectID']); ?>" <?php if ($filterSubjectID == $subject['subjectID']) echo 'selected'; ?>><?php echo htmlspecialchars($subject['subjectName']); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="filter-date">Date</label>
-                            <input type="date" id="filter-date" name="reviewDate" value="<?php echo htmlspecialchars($filterDate); ?>">
-                        </div>
-                        <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;width:100%;">Apply Filter</button>
-                        <a href="dashboard.php" id="clear-filter" class="btn btn-secondary" style="margin-top:0.5rem;width:100%;text-align:center;display:inline-block;box-sizing:border-box;">Clear</a>
-                    </form>
-                </div>
-                */ ?>
-            </nav>
-        </aside>
+        <?php require_once __DIR__ . '/includes/sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -305,26 +243,7 @@ $currUserId = $_SESSION['userId'] ?? null;
                 </form>
             </div>
         </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div id="delete-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Delete Session</h3>
-                <button id="close-delete-modal" class="close-btn">
-                    <i data-feather="x"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this session? This action cannot be undone.</p>
-                <div class="form-actions">
-                    <button type="button" id="cancel-delete" class="btn btn-secondary">Cancel</button>
-                    <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    </div>    <?php require_once __DIR__ . '/includes/delete-modal.php'; ?>
 
     <!-- Session Card Template -->
     <template id="session-card-template">
@@ -374,11 +293,9 @@ $currUserId = $_SESSION['userId'] ?? null;
                 </div>
             </div>
         </div>
-    </template>
-
-    <!-- Scripts -->
+    </template>    <!-- Scripts -->
     <script src="/cmsc126-study-session-management-system/public/js/utils.js"></script>
-    <script src="/cmsc126-study-session-management-system/public/js/script.js"></script>
     <script src="/cmsc126-study-session-management-system/public/js/dashboard.js"></script>
+    <script src="/cmsc126-study-session-management-system/public/js/dropdown.js"></script>
 </body>
 </html>

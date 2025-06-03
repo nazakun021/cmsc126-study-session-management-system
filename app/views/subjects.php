@@ -11,33 +11,8 @@ requireLogin();
     <link rel="stylesheet" href="/cmsc126-study-session-management-system/public/css/styles.css">
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1 class="app-title">ReviewApp</h1>
-                <button id="menu-toggle" class="menu-toggle">
-                    <i data-feather="menu"></i>
-                </button>
-            </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li>
-                        <a href="/cmsc126-study-session-management-system/app/views/dashboard.php">
-                            <i data-feather="home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/cmsc126-study-session-management-system/app/views/review-sessions.php">
-                            <i data-feather="calendar"></i>
-                            <span>Review Sessions</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
+<body>    <div class="app-container">
+        <?php require_once __DIR__ . '/includes/sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="main-content">
