@@ -1,10 +1,5 @@
 # CMSC126 Study Session Management System
 
-[![PHP](https://img.shields.io/badge/PHP-8.2+-blue)](https://php.net)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange)](https://mysql.com)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)](https://javascript.info)
-[![License](https://img.shields.io/badge/License-Academic-green)](#license)
-
 A comprehensive web-based study session management system designed for university students to organize, schedule, and manage collaborative study sessions. Built as the final project for CMSC126 (Web-based Systems) course.
 
 ## 📚 Table of Contents
@@ -21,7 +16,6 @@ A comprehensive web-based study session management system designed for universit
 - [Development Approach](#-development-approach)
 - [Security Features](#-security-features)
 - [Contributing](#-contributing)
-- [License](#-license)
 
 ## 🎯 Project Overview
 
